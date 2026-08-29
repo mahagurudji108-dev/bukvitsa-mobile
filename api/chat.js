@@ -23,7 +23,7 @@ module.exports = async (req, res) => {
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${process.env.OPENROUTER_KEY}`,
+        'Authorization': `Bearer sk-Q025lYJVanNF60oWG8XNb5ShoWHMzX4eGW2XtDP32KDDCfSP`,
         'Content-Type': 'application/json',
         'HTTP-Referer': req.headers.origin || 'https://bukvitsa-mobile.vercel.app',
         'X-Title': 'Bukvitsa Oracle'
