@@ -11,14 +11,14 @@ module.exports = async (req, res) => {
     if (Buffer.isBuffer(body)) body = JSON.parse(body.toString());
     else if (typeof body === 'string') body = JSON.parse(body);
 
-    if (!process.env.OPENROUTER_KEY) {
+    message: 'Ключ OpenRouter не найден в переменных окружения'
       return res.status(200).json({ error: true, message: 'Ключ OdiRouter не найден в переменных окружения' });
     }
 
     const response = await fetch('https://odirouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${process.env.ODIROUTER_KEY}`,
+        'Authorization': `Bearer ${process.env.OPENROUTER_KEY}`,
         'Content-Type': 'application/json',
         'HTTP-Referer': req.headers.origin || 'https://bukvitsa-mobile.vercel.app',
         'X-Title': 'Bukvitsa Oracle'
