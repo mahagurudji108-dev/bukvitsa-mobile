@@ -15,7 +15,7 @@ module.exports = async (req, res) => {
       return res.status(200).json({ error: true, message: 'API-ключ не найден в переменных окружения' });
     }
 
-    const response = await fetch('https://odirouter.ai/v1/chat/completions', {
+        const response = await fetch('https://api.odirouter.ai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${process.env.OPENROUTER_KEY}`,
