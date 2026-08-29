@@ -11,8 +11,8 @@ module.exports = async (req, res) => {
     if (Buffer.isBuffer(body)) body = JSON.parse(body.toString());
     else if (typeof body === 'string') body = JSON.parse(body);
 
-    message: 'Ключ OpenRouter не найден в переменных окружения'
-      return res.status(200).json({ error: true, message: 'Ключ OdiRouter не найден в переменных окружения' });
+    if (!process.env.OPENROUTER_KEY) {
+      return res.status(200).json({ error: true, message: 'API-ключ не найден в переменных окружения' });
     }
 
     const response = await fetch('https://odirouter.ai/api/v1/chat/completions', {
@@ -29,7 +29,7 @@ module.exports = async (req, res) => {
     const data = await response.json();
 
     if (data.error) {
-      return res.status(200).json({ error: true, message: data.error.message || 'Ошибка OdiRouter' });
+      return res.status(200).json({ error: true, message: data.error.message || 'Ошибка API' });
     }
 
     res.status(200).json(data);
