@@ -1,0 +1,1870 @@
+<!DOCTYPE html> 
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>☀ БУКВИЦА ☀ — Оракул 49 знаков</title>
+<style>
+  @font-face {
+    font-family: 'Cinzel';
+    src: url('fonts/Cinzel-Regular.ttf') format('truetype');
+    font-weight: 400;
+  }
+  @font-face {
+    font-family: 'Cinzel';
+    src: url('fonts/Cinzel-Bold.ttf') format('truetype');
+    font-weight: 700;
+  }
+  @font-face {
+    font-family: 'Noto Serif';
+    src: url('fonts/NotoSerif-Regular.ttf') format('truetype');
+    font-weight: 400;
+  }
+  @font-face {
+    font-family: 'Noto Serif';
+    src: url('fonts/NotoSerif-Bold.ttf') format('truetype');
+    font-weight: 700;
+  }
+  @font-face {
+    font-family: 'Noto Serif';
+    src: url('fonts/NotoSerif-Italic.ttf') format('truetype');
+    font-weight: 400;
+    font-style: italic;
+  }
+  @font-face {
+    font-family: 'Fedorovsk';
+    src: url('fonts/Fedorovsk.ttf') format('truetype');
+    font-weight: 400;
+  }
+@font-face {
+  font-family: 'Hirmucs';
+  src: url('fonts/Hirmucs.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Hirmucs2';
+  src: url('fonts/Hirmucs2.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Poluustav';
+  src: url('fonts/Poluustav.ttf') format('truetype');
+  font-weight: 400;
+}
+@font-face {
+  font-family: 'TriodPostnaja';
+  src: url('fonts/TriodPostnaja.ttf') format('truetype');
+  font-weight: 400;
+}
+@font-face {
+  font-family: 'Bukvitsa';
+  src: url('fonts/Bukvitsa.otf') format('truetype');
+  font-weight: 400;
+}
+@font-face {
+  font-family: 'Pochaevsk';
+  src: url('fonts/Pochaevsk.ttf') format('truetype');
+  font-weight: 400;
+}
+@font-face {
+  font-family: 'cyrillica';
+  src: url('fonts/cyrillica.ttf') format('truetype');
+  font-weight: 400;
+}
+@font-face {
+  font-family: 'izhitsa';
+  src: url('fonts/izhitsa.ttf') format('truetype');
+  font-weight: 400;
+}
+</style>
+  <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: linear-gradient(135deg, #0d0805 0%, #1a0f0a 50%, #0d0805 100%);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;   /* ← ВСЕ элементы идут ВНИЗ, а не вбок */
+  align-items: center;      /* ← центрируем по ширине */
+  padding: 20px;
+
+      font-family: 'Noto Serif', serif;
+      overflow-x: hidden;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    @keyframes pulseSun { 0%, 100% { opacity: 0.08; transform: scale(1); } 50% { opacity: 0.2; transform: scale(1.2); } }
+     #starCanvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 1; }
+    .oracle-app {
+      background: linear-gradient(135deg, #1a0f0a 0%, #2d1b0e 50%, #1a0f0a 100%);
+      border-radius: 16px;
+      padding: 24px;
+      max-width: 900px;
+      width: 100%;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 0 40px rgba(180,140,80,0.15), inset 0 0 60px rgba(0,0,0,0.4);
+      border: 1px solid rgba(180,140,80,0.3);
+      z-index: 2;
+    }
+    .oracle-app::before {
+      content: '';
+      position: absolute;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: radial-gradient(circle, rgba(180,140,80,0.03) 0%, transparent 70%);
+      animation: pulse 4s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.5; } 50% { transform: scale(1.1); opacity: 1; } }
+    .title { font-family: 'Cinzel', serif; font-size: 26px; color: #d4a853; margin-bottom: 4px; text-shadow: 0 0 20px rgba(212,168,83,0.3); position: relative; z-index: 1; }
+    .subtitle { font-size: 13px; color: #a08060; margin-bottom: 16px; font-style: italic; position: relative; z-index: 1; }
+    .glow-line { width: 50%; height: 1px; background: linear-gradient(90deg, transparent, #d4a853, transparent); margin: 0 auto 16px; position: relative; z-index: 1; }
+
+    /* === РЕЖИМ ОДНОЙ КАРТЫ === */
+    .single-card-scene { perspective: 1000px; width: 280px; height: 420px; margin: 0 auto 20px; position: relative; z-index: 1; }
+    .single-card-scene .card { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; -webkit-transform-style: preserve-3d; transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); will-change: transform; transform: translate3d(0,0,0); }
+    .single-card-scene .card.flipped { transform: rotateY(180deg) translate3d(0,0,0); }
+    .single-card-scene .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 16px; border: 2px solid #d4a853; box-shadow: 0 4px 20px rgba(0,0,0,0.6); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
+    .single-card-scene .card-front { background: linear-gradient(135deg, #1b1424 0%, #0a0612 100%); border: 2px solid #d4a853; }
+    .single-card-scene .card-front::after { content: "✷\A❈\A✵"; white-space: pre; display: block; text-align: center; font-size: 40px; color: #d4a853; opacity: 0.4; line-height: 1.6; font-family: 'Cinzel', serif; }
+    .single-card-scene .card-front-label { position: absolute; bottom: 35px; font-family: 'Cinzel', serif; font-size: 12px; color: #d4a853; letter-spacing: 4px; opacity: 0.6; }
+
+    /* === РАСКЛАД 3 КАРТ === */
+    .spread-container { display: none; flex-wrap: wrap; justify-content: center; gap: 16px; margin: 0 auto 20px; position: relative; z-index: 1; }
+    .spread-container.active { display: flex; }
+    .spread-card-wrapper { display: flex; flex-direction: column; align-items: center; }
+    .spread-label { font-family: 'Cinzel', serif; font-size: 11px; color: #a08060; letter-spacing: 2px; margin-bottom: 6px; text-transform: uppercase; }
+    .spread-label.past { color: #87cefa; text-shadow: 0 0 8px rgba(135,206,250,0.3); }
+    .spread-label.present { color: #d4a853; text-shadow: 0 0 8px rgba(212,168,83,0.3); }
+    .spread-label.future { color: #cd5c5c; text-shadow: 0 0 8px rgba(205,92,92,0.3); }
+    .spread-card-scene { perspective: 1000px; width: 220px; height: 340px; }
+    .spread-card-scene .card { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; -webkit-transform-style: preserve-3d; transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); will-change: transform; transform: translate3d(0,0,0); }
+    .spread-card-scene .card.flipped { transform: rotateY(180deg) translate3d(0,0,0); }
+    .spread-card-scene .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 14px; border: 2px solid #d4a853; box-shadow: 0 4px 16px rgba(0,0,0,0.6); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 14px; box-sizing: border-box; }
+    .spread-card-scene .card-front { background: linear-gradient(135deg, #1b1424 0%, #0a0612 100%); border: 2px solid #d4a853; }
+    .spread-card-scene .card-front::after { content: "✷\A❈\A✵"; white-space: pre; display: block; text-align: center; font-size: 28px; color: #d4a853; opacity: 0.4; line-height: 1.5; font-family: 'Cinzel', serif; }
+    .spread-card-scene .card-front-label { position: absolute; bottom: 25px; font-family: 'Cinzel', serif; font-size: 9px; color: #d4a853; letter-spacing: 3px; opacity: 0.5; }
+
+    /* === ОБЩИЕ СТИЛИ РУБАШКИ КАРТЫ === */
+.card-back {
+  background: linear-gradient(135deg, #1a0f0a 0%, #2d1b0e 100%);
+  border: 2px solid #d4a853;
+  transform: rotateY(180deg);
+}
+    .card-back.glow-prav { box-shadow: 0 0 20px rgba(255,255,255,0.45); border-color: rgba(255,255,255,0.8); }
+    .card-back.glow-nav { box-shadow: 0 0 20px rgba(244,67,54,0.5); border-color: #b22222; }
+    .card-back.glow-yav { box-shadow: 0 0 20px rgba(118,255,3,0.5); border-color: #76ff03; }
+    .card-back.glow-slav { box-shadow: 0 0 20px rgba(154,123,176,0.5); border-color: #bfaed4; }
+    .card-back.glow-body-yav { box-shadow: 0 0 16px rgba(220,60,60,0.45); border-color: #dc3c3c; }
+    .card-back.glow-body-zhar { box-shadow: 0 0 16px rgba(255,140,0,0.45); border-color: #ff8c00; }
+    .card-back.glow-body-nav { box-shadow: 0 0 16px rgba(255,200,50,0.45); border-color: #ffc832; }
+    .card-back.glow-body-klub { box-shadow: 0 0 16px rgba(50,180,80,0.45); border-color: #32b450; }
+    .card-back.glow-body-kolob { box-shadow: 0 0 16px rgba(60,140,220,0.45); border-color: #3c8cdc; }
+    .card-back.glow-body-div { box-shadow: 0 0 16px rgba(180,120,220,0.45); border-color: #b478dc; }
+    .card-back.glow-body-svet { box-shadow: 0 0 16px rgba(220,200,255,0.45); border-color: #dcc8ff; }
+    /* === НЕОН ТЕЛА В КАРТОЧКАХ === */
+    .card-back.glow-body-yav .card-body { color: #ff5555; text-shadow: 0 0 6px rgba(220,60,60,0.9), 0 0 12px rgba(220,60,60,0.5); }
+    .card-back.glow-body-zhar .card-body { color: #ffaa33; text-shadow: 0 0 6px rgba(255,140,0,0.9), 0 0 12px rgba(255,140,0,0.5); }
+    .card-back.glow-body-nav .card-body { color: #ffdd44; text-shadow: 0 0 6px rgba(255,200,50,0.9), 0 0 12px rgba(255,200,50,0.5); }
+    .card-back.glow-body-klub .card-body { color: #44ff66; text-shadow: 0 0 6px rgba(50,180,80,0.9), 0 0 12px rgba(50,180,80,0.5); }
+    .card-back.glow-body-kolob .card-body { color: #55aaff; text-shadow: 0 0 6px rgba(60,140,220,0.9), 0 0 12px rgba(60,140,220,0.5); }
+    .card-back.glow-body-div .card-body { color: #cc88ff; text-shadow: 0 0 6px rgba(180,120,220,0.9), 0 0 12px rgba(180,120,220,0.5); }
+    .card-back.glow-body-svet .card-body { color: #eebbff; text-shadow: 0 0 6px rgba(220,200,255,0.9), 0 0 12px rgba(220,200,255,0.5); }
+    /* === УДЕЛ И ПРЕДСКАЗАНИЕ — бирюзовый неон === */
+    .card-udel {
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      color: #00e5c9;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin: 6px 0 4px;
+      text-shadow: 0 0 8px rgba(0,229,201,0.9), 0 0 16px rgba(0,229,201,0.5);
+      font-weight: bold;
+    }
+    .spread-card-scene .card-udel {
+      font-size: 9px;
+      letter-spacing: 2px;
+      margin: 4px 0 2px;
+    }
+
+    /* === ПРЕДСКАЗАНИЕ — */
+    .card-prediction {
+      font-size: 13px;
+      color: #b2dfdb; 
+      line-height: 1.5;
+      text-align: center;
+      max-width: 230px;
+      text-shadow: 0 0 4px rgba(0,229,201,0.25);
+    }
+    .spread-card-scene .card-prediction {
+      font-size: 11px;
+      line-height: 1.4;
+      max-width: 180px;
+    }
+    .aspect-badge { font-size: 9px; text-transform: uppercase; letter-spacing: 2px; padding: 5px 16px; border-radius: 20px; margin-bottom: 10px; font-family: 'Cinzel', serif; font-weight: bold; position: relative; display: inline-block; }
+
+    .aspect-badge.prav { background: linear-gradient(135deg, rgba(255,255,255,0.12), rgba(200,220,255,0.08)); color: #ffffff; border: 1px solid rgba(255,255,255,0.7); box-shadow: 0 0 15px rgba(255,255,255,0.15), inset 0 0 10px rgba(255,255,255,0.04); text-shadow: 0 0 6px rgba(255,255,255,0.3); }
+    .aspect-badge.prav::before { content: '☀ '; }
+    .aspect-badge.nav { background: linear-gradient(135deg, rgba(128,0,32,0.2), rgba(60,0,15,0.15)); color: #cd5c5c; border: 1px solid #a52a2a; box-shadow: 0 0 15px rgba(128,0,32,0.3), inset 0 0 10px rgba(128,0,32,0.08); text-shadow: 0 0 8px rgba(205,92,92,0.4); }
+    .aspect-badge.nav::before { content: '☾ '; }
+    .aspect-badge.yav { background: linear-gradient(135deg, rgba(118,255,3,0.12), rgba(60,180,0,0.08)); color: #76ff03; border: 1px solid #76ff03; box-shadow: 0 0 15px rgba(118,255,3,0.2), inset 0 0 10px rgba(118,255,3,0.05); text-shadow: 0 0 6px rgba(118,255,3,0.3); }
+    .aspect-badge.yav::before { content: '⚖ '; }
+    .aspect-badge.slav { background: linear-gradient(135deg, rgba(135,206,250,0.15), rgba(70,130,180,0.1)); color: #87cefa; border: 1px solid #87cefa; box-shadow: 0 0 15px rgba(135,206,250,0.2), inset 0 0 10px rgba(135,206,250,0.05); }
+    .aspect-badge.slav::before { content: '✦ '; }
+    .aspect-name { font-family: 'Cinzel', serif; font-size: 22px; font-weight: bold; letter-spacing: 4px; margin-bottom: 6px; text-shadow: 0 0 20px currentColor; }
+    .spread-card-scene .aspect-name { font-size: 16px; letter-spacing: 2px; }
+    .aspect-name.prav { color: #ffffff; text-shadow: 0 0 15px rgba(255,255,255,0.4), 0 0 30px rgba(200,230,255,0.2); }
+    .aspect-name.nav { color: #cd5c5c; text-shadow: 0 0 15px rgba(205,92,92,0.5), 0 0 30px rgba(128,0,32,0.3); }
+    .aspect-name.yav { color: #76ff03; text-shadow: 0 0 15px rgba(118,255,3,0.5), 0 0 30px rgba(80,200,0,0.2); }
+    .aspect-name.slav { color: #87cefa; }
+    .aspect-divider { width: 40%; height: 1px; background: linear-gradient(90deg, transparent, rgba(212,168,83,0.4), transparent); margin: 0 auto 8px; }
+    .card-symbol-box { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 6px 0; }
+    .card-symbol { font-size: 56px; color: #d4a853; text-shadow: 0 0 25px rgba(212,168,83,0.3); line-height: 1; transition: transform 0.6s ease; font-family: 'Noto Serif', serif; }
+    .spread-card-scene .card-symbol { font-size: 42px; }
+    .card-symbol.small { font-size: 40px; color: #b89860; }
+    .spread-card-scene .card-symbol.small { font-size: 30px; }
+    .card-vs { font-size: 14px; color: #806040; font-family: 'Cinzel', serif; }
+    .card-bukvitsa-name { font-size: 15px; color: #e8c880; font-family: 'Cinzel', serif; margin-bottom: 2px; letter-spacing: 2px; }
+    .spread-card-scene .card-bukvitsa-name { font-size: 12px; }
+    /* === ОПИСАНИЕ БУКВИЦЫ — пепельно-золотой, без неона === */
+    .card-oldname {
+      font-size: 13px;
+      color: #a09070;
+      margin-bottom: 6px;
+      line-height: 1.4;
+      font-style: italic;
+    }
+    .spread-card-scene .card-oldname {
+      font-size: 11px;
+      line-height: 1.35;
+    }
+    .card-numeric { font-size: 12px; color: #d4a853; font-family: 'Cinzel', serif; letter-spacing: 2px; margin-bottom: 6px; }
+    .spread-card-scene .card-numeric { font-size: 10px; letter-spacing: 1px; }
+    .card-body { font-size: 13px; color: #c8a050; margin-bottom: 4px; letter-spacing: 1px; font-weight: bold; }
+    .spread-card-scene .card-body { font-size: 10px; }
+
+    .star-decoration { color: #d4a853; font-size: 11px; letter-spacing: 6px; margin: 6px 0; opacity: 0.5; }
+    .spread-card-scene .star-decoration { font-size: 9px; letter-spacing: 4px; }
+
+    /* === КНОПКИ === */
+    .oracle-btn {
+      background: linear-gradient(135deg, #b8860b 0%, #f4d03f 50%, #b8860b 100%);
+      border: 2px solid rgba(255, 215, 0, 0.8);
+      border-radius: 50px;
+      padding: 14px 32px;
+      font-family: 'Cinzel', serif;
+      font-size: 15px;
+      color: #1a0f0a;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 15px rgba(212,168,83,0.4), inset 0 1px 0 rgba(255,255,255,0.3);
+      letter-spacing: 2px;
+      margin: 0 4px;
+      text-shadow: 0 1px 0 rgba(255,255,255,0.4);
+    }
+    .oracle-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 25px rgba(212,168,83,0.6), inset 0 1px 0 rgba(255,255,255,0.4);
+      border-color: #ffd700;
+    }
+    .oracle-btn:active { transform: translateY(1px); }
+    .btn-secondary { background: transparent; border: 1px solid rgba(180,140,80,0.4); color: #d4a853; padding: 12px 24px; font-size: 13px; }
+    .btn-secondary:hover { background: rgba(180,140,80,0.1); border-color: #d4a853; }
+    .btn-spread { background: linear-gradient(135deg, rgba(135,206,250,0.2), rgba(70,130,180,0.15)); border: 1px solid rgba(135,206,250,0.5); color: #87cefa; }
+    .btn-spread:hover { background: rgba(135,206,250,0.15); box-shadow: 0 4px 20px rgba(135,206,250,0.3); }
+    .btn-spread.active { background: linear-gradient(135deg, rgba(135,206,250,0.3), rgba(70,130,180,0.2)); border-color: #87cefa; box-shadow: 0 0 20px rgba(135,206,250,0.4); }
+    .controls { display: flex; gap: 8px; justify-content: center; margin-bottom: 10px; position: relative; z-index: 1; flex-wrap: wrap; }
+    .hint { font-size: 11px; color: #605040; margin-top: 10px; font-style: italic; position: relative; z-index: 1; }
+
+    /* === СЕТКА === */
+    .grid-section { display: none; position: relative; z-index: 1; margin-top: 20px; }
+    .grid-section.active { display: block; }
+    .grid-title { font-family: 'Cinzel', serif; font-size: 18px; color: #d4a853; margin-bottom: 10px; letter-spacing: 3px; }
+    .grid-subtitle { font-size: 11px; color: #806040; margin-bottom: 8px; font-style: italic; }
+    .bukvitsa-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; max-width: 460px; width: 100%; margin: 0 auto; padding: 12px; background: rgba(35, 20, 8, 0.75); border-radius: 10px; border: 1px solid rgba(212,168,83,0.3); }
+    .grid-cell { aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(30,20,10,0.6); border: 1px solid rgba(180,140,80,0.15); border-radius: 8px; cursor: pointer; transition: all 0.3s ease; padding: 3px; }
+    .grid-cell:hover { background: rgba(180,140,80,0.18); border-color: #d4a853; transform: scale(1.1); z-index: 2; box-shadow: 0 0 18px rgba(212,168,83,0.25); }
+    .grid-cell.body-yav { border-color: rgba(220,60,60,0.5); background: rgba(220,60,60,0.08); }
+    .grid-cell.body-zhar { border-color: rgba(255,140,0,0.5); background: rgba(255,140,0,0.08); }
+    .grid-cell.body-nav { border-color: rgba(255,200,50,0.5); background: rgba(255,200,50,0.08); }
+    .grid-cell.body-klub { border-color: rgba(50,180,80,0.5); background: rgba(50,180,80,0.08); }
+    .grid-cell.body-kolob { border-color: rgba(60,140,220,0.5); background: rgba(60,140,220,0.08); }
+    .grid-cell.body-div { border-color: rgba(180,120,220,0.5); background: rgba(180,120,220,0.08); }
+    .grid-cell.body-svet { border-color: rgba(220,200,255,0.5); background: rgba(220,200,255,0.08); }
+    .grid-cell .cell-body { font-size: 7px; margin-top: 2px; letter-spacing: 0.5px; font-family: 'Cinzel', serif; }
+    .grid-cell.body-yav .cell-body { color: #dc3c3c; }
+    .grid-cell.body-zhar .cell-body { color: #ff8c00; }
+    .grid-cell.body-nav .cell-body { color: #ffc832; }
+    .grid-cell.body-klub .cell-body { color: #32b450; }
+    .grid-cell.body-kolob .cell-body { color: #3c8cdc; }
+    .grid-cell.body-div .cell-body { color: #b478dc; }
+    .grid-cell.body-svet .cell-body { color: #dcc8ff; }
+    .grid-cell .cell-symbol { font-size: 26px; font-weight: bold; color: #d4a853; line-height: 1; font-family: 'Noto Serif', serif; }
+    .grid-cell .cell-symbol-sm { font-size: 18px; font-weight: bold; color: #b89860; line-height: 1; margin-top: 2px; }
+    .grid-cell .cell-number { font-size: 11px; font-weight: bold; color: #d4a853; margin-top: 2px; font-family: 'Cinzel', serif; }
+    .grid-divider { grid-column: 1 / -1; text-align: center; padding: 8px 0; margin: 6px 0 4px 0; font-family: 'Cinzel', serif; font-size: 12px; font-weight: bold; letter-spacing: 2px; border-radius: 4px; border: 1px solid; }
+    .grid-divider span { opacity: 0.9; }
+    .grid-divider.body-yav { background: rgba(220,60,60,0.12); color: #dc3c3c; border-color: rgba(220,60,60,0.3); }
+    .grid-divider.body-zhar { background: rgba(255,140,0,0.12); color: #ff8c00; border-color: rgba(255,140,0,0.3); }
+    .grid-divider.body-nav { background: rgba(255,200,50,0.12); color: #ffc832; border-color: rgba(255,200,50,0.3); }
+    .grid-divider.body-klub { background: rgba(50,180,80,0.12); color: #32b450; border-color: rgba(50,180,80,0.3); }
+    .grid-divider.body-kolob { background: rgba(60,140,220,0.12); color: #3c8cdc; border-color: rgba(60,140,220,0.3); }
+    .grid-divider.body-div { background: rgba(180,120,220,0.12); color: #b478dc; border-color: rgba(180,120,220,0.3); }
+    .grid-divider.body-svet { background: rgba(220,200,255,0.12); color: #dcc8ff; border-color: rgba(220,200,255,0.3); }
+    .body-legend { display: flex; flex-wrap: wrap; gap: 8px; max-width: 460px; margin: 8px auto 0; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px; border: 1px solid rgba(180,140,80,0.1); justify-content: center; }
+    .body-legend-item { font-size: 10px; color: #a08050; display: flex; align-items: center; gap: 4px; }
+    .body-legend-dot { width: 10px; height: 10px; border-radius: 2px; border: 1px solid; }
+    .legend-item { font-size: 10px; color: #806040; text-align: center; }
+    .legend-item span { color: #a08050; font-weight: bold; }
+
+    /* === КНОПКА ДА/НЕТ === */
+    .yesno-btn {
+      background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 30px;
+      padding: 8px 18px;
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      color: #ffffff;
+      letter-spacing: 2px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: all 0.3s ease;
+      text-shadow: 0 0 6px rgba(255,255,255,0.4);
+      box-shadow: 0 0 10px rgba(255,255,255,0.05), inset 0 1px 0 rgba(255,255,255,0.1);
+      position: relative;
+      z-index: 2;
+    }
+    .yesno-btn:hover {
+      background: rgba(255,255,255,0.15);
+      border-color: rgba(255,255,255,0.6);
+      box-shadow: 0 0 20px rgba(255,255,255,0.15), inset 0 1px 0 rgba(255,255,255,0.2);
+      text-shadow: 0 0 10px rgba(255,255,255,0.8);
+    }
+    .yesno-btn:active { transform: scale(0.95); }
+
+    /* === ВСПЛЫВАЮЩИЙ ОТВЕТ ДА/НЕТ === */
+    .yesno-float {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.6);
+      font-family: 'Cinzel', serif;
+      font-size: 64px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: 8px;
+      text-transform: uppercase;
+      pointer-events: none;
+      z-index: 200;
+      opacity: 0;
+      animation: yesnoAppear 2.2s ease-out forwards;
+      text-shadow:
+        0 0 10px rgba(255,255,255,0.9),
+        0 0 20px rgba(255,255,255,0.8),
+        0 0 40px rgba(255,255,255,0.6),
+        0 0 80px rgba(255,255,255,0.4),
+        0 0 120px rgba(255,255,255,0.2);
+      -webkit-text-stroke: 1px rgba(255,255,255,0.3);
+    }
+    @keyframes yesnoAppear {
+      0% { opacity: 0; transform: translate(-50%, -40%) scale(0.6); }
+      15% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+      25% { transform: translate(-50%, -50%) scale(1); }
+      80% { opacity: 1; transform: translate(-50%, -55%) scale(1); }
+      100% { opacity: 0; transform: translate(-50%, -70%) scale(0.9); }
+    }
+
+    /* === ПОПАП === */
+    .detail-popup { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #1a0f0a 0%, #2d1b0e 100%); border: 1px solid rgba(180,140,80,0.4); border-radius: 16px; padding: 24px; max-width: 420px; width: 90%; z-index: 100; box-shadow: 0 0 50px rgba(0,0,0,0.8); text-align: center; max-height: 85vh; }
+    .detail-popup-content { max-height: calc(85vh - 48px); overflow-y: auto; position: relative; z-index: 1; }
+    .detail-popup.active { display: block; }
+    .detail-popup::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: 16px; pointer-events: none; z-index: 0; opacity: 0; transition: opacity 0.4s ease; }
+    .detail-popup.glow-body-yav::before { opacity: 1; box-shadow: inset 0 0 60px rgba(220,60,60,0.25), inset 0 0 120px rgba(220,60,60,0.12); }
+    .detail-popup.glow-body-zhar::before { opacity: 1; box-shadow: inset 0 0 60px rgba(255,140,0,0.25), inset 0 0 120px rgba(255,140,0,0.12); }
+    .detail-popup.glow-body-nav::before { opacity: 1; box-shadow: inset 0 0 60px rgba(255,200,50,0.25), inset 0 0 120px rgba(255,200,50,0.12); }
+    .detail-popup.glow-body-klub::before { opacity: 1; box-shadow: inset 0 0 60px rgba(50,180,80,0.25), inset 0 0 120px rgba(50,180,80,0.12); }
+    .detail-popup.glow-body-kolob::before { opacity: 1; box-shadow: inset 0 0 60px rgba(60,140,220,0.25), inset 0 0 120px rgba(60,140,220,0.12); }
+    .detail-popup.glow-body-div::before { opacity: 1; box-shadow: inset 0 0 60px rgba(180,120,220,0.25), inset 0 0 120px rgba(180,120,220,0.12); }
+    .detail-popup.glow-body-svet::before { opacity: 1; box-shadow: inset 0 0 60px rgba(220,200,255,0.25), inset 0 0 120px rgba(220,200,255,0.12); }
+    .detail-popup.glow-body-yav { box-shadow: 0 0 30px rgba(220,60,60,0.4), 0 0 80px rgba(220,60,60,0.2); border-color: rgba(220,60,60,0.6); }
+    .detail-popup.glow-body-zhar { box-shadow: 0 0 30px rgba(255,140,0,0.4), 0 0 80px rgba(255,140,0,0.2); border-color: rgba(255,140,0,0.6); }
+    .detail-popup.glow-body-nav { box-shadow: 0 0 30px rgba(255,200,50,0.4), 0 0 80px rgba(255,200,50,0.2); border-color: rgba(255,200,50,0.6); }
+    .detail-popup.glow-body-klub { box-shadow: 0 0 30px rgba(50,180,80,0.4), 0 0 80px rgba(50,180,80,0.2); border-color: rgba(50,180,80,0.6); }
+    .detail-popup.glow-body-kolob { box-shadow: 0 0 30px rgba(60,140,220,0.4), 0 0 80px rgba(60,140,220,0.2); border-color: rgba(60,140,220,0.6); }
+    .detail-popup.glow-body-div { box-shadow: 0 0 30px rgba(180,120,220,0.4), 0 0 80px rgba(180,120,220,0.2); border-color: rgba(180,120,220,0.6); }
+    .detail-popup.glow-body-svet { box-shadow: 0 0 30px rgba(220,200,255,0.4), 0 0 80px rgba(220,200,255,0.2); border-color: rgba(220,200,255,0.6); }
+    .detail-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 99; }
+    .detail-overlay.active { display: block; }
+    .detail-both-forms { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 8px; }
+    .detail-form-box { display: flex; flex-direction: column; align-items: center; }
+    .detail-form-label { font-size: 9px; color: #806040; text-transform: uppercase; letter-spacing: 2px; font-family: 'Cinzel', serif; }
+    .detail-form-symbol { font-size: 52px; color: #d4a853; text-shadow: 0 0 15px rgba(212,168,83,0.3); line-height: 1; font-family: 'Noto Serif', serif; }
+    .detail-form-symbol.small { font-size: 38px; color: #b89860; }
+    .detail-vs { font-size: 14px; color: #806040; font-family: 'Cinzel', serif; }
+    .detail-name { font-family: 'Cinzel', serif; font-size: 18px; color: #e8c880; margin-bottom: 3px; }
+    .detail-oldname { font-size: 13px; color: #a08050; margin-bottom: 6px; font-style: italic; }
+    .detail-numeric { font-size: 13px; color: #d4a853; margin-bottom: 10px; letter-spacing: 2px; }
+    .detail-body { font-size: 13px; color: #8c7e9c; margin-bottom: 10px; letter-spacing: 1px; }
+    .detail-encyclopedia { font-size: 13px; color: #a08060; line-height: 1.6; text-align: left; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px; margin-bottom: 10px; border-left: 2px solid rgba(212,168,83,0.3); }
+    .detail-encyclopedia-title { font-family: 'Cinzel', serif; font-size: 10px; color: #d4a853; margin-bottom: 4px; letter-spacing: 2px; }
+    .detail-aspect { margin: 8px 0; padding: 10px; border-radius: 8px; text-align: left; }
+    .detail-aspect.prav { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.25); }
+    .detail-aspect.nav { background: rgba(128,0,32,0.1); border: 1px solid rgba(165,42,42,0.4); }
+    .detail-aspect.yav { background: rgba(118,255,3,0.06); border: 1px solid rgba(118,255,3,0.25); }
+    .detail-aspect.slav { background: rgba(135,206,250,0.1); border: 1px solid rgba(135,206,250,0.3); }
+    .detail-aspect-title { font-size: 13px; font-family: 'Cinzel', serif; letter-spacing: 2px; margin-bottom: 4px; }
+    .detail-aspect-title.prav { color: #ffffff; text-shadow: 0 0 10px rgba(255,255,255,0.3), 0 0 20px rgba(200,230,255,0.15); }
+    .detail-aspect-title.nav { color: #cd5c5c; text-shadow: 0 0 10px rgba(205,92,92,0.4), 0 0 20px rgba(128,0,32,0.2); }
+    .detail-aspect-title.yav { color: #76ff03; text-shadow: 0 0 10px rgba(118,255,3,0.4), 0 0 20px rgba(80,200,0,0.15); }
+    .detail-aspect-title.slav { color: #87cefa; text-shadow: 0 0 10px rgba(135,206,250,0.3); }
+    .detail-aspect-text { font-size: 14px; color: #c8b090; line-height: 1.6; }
+    .detail-full-desc {
+      font-size: 12px;
+      color: #c8b090;
+      line-height: 1.5;
+      text-align: left;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease, margin 0.4s ease, padding 0.4s ease;
+      margin: 0;
+      padding: 0 6px;
+      white-space: pre-line;
+    }
+    .detail-full-desc.open {
+      max-height: 10000px;
+      margin-top: 6px;
+      padding: 8px 6px;
+      border-top: 1px solid rgba(212,168,83,0.2);
+    }
+    @keyframes shimmer {
+      0% { color: #d4af37; text-shadow: 0 0 6px rgba(212,175,55,0.5); }
+      50% { color: #87cefa; text-shadow: 0 0 14px rgba(135,206,250,0.7), 0 0 6px rgba(212,175,55,0.3); }
+      100% { color: #d4af37; text-shadow: 0 0 6px rgba(212,175,55,0.5); }
+    }
+    @keyframes aurora {
+      0%   { color: #00f5d4; text-shadow: 0 0 8px rgba(0,245,212,0.7), 0 0 18px rgba(0,245,212,0.3); }
+      25%  { color: #9b5de5; text-shadow: 0 0 10px rgba(155,93,229,0.8), 0 0 22px rgba(155,93,229,0.4); }
+      50%  { color: #f15bb5; text-shadow: 0 0 12px rgba(241,91,181,0.8), 0 0 26px rgba(241,91,181,0.4); }
+      75%  { color: #fee440; text-shadow: 0 0 10px rgba(254,228,64,0.7), 0 0 22px rgba(254,228,64,0.3); }
+      100% { color: #00f5d4; text-shadow: 0 0 8px rgba(0,245,212,0.7), 0 0 18px rgba(0,245,212,0.3); }
+    }
+    .detail-expand-btn {
+      font-family: 'Cinzel', serif;
+      font-size: 9px;
+      letter-spacing: 2px;
+      cursor: pointer;
+      margin-top: 4px;
+      opacity: 0.85;
+      transition: opacity 0.3s;
+      display: none;
+      color: #a0f0e0;
+      text-shadow: 0 0 8px rgba(100,240,220,0.5), 0 0 18px rgba(100,240,220,0.2);
+    }
+    .detail-expand-btn:hover {
+      animation: aurora 3s linear infinite;
+      opacity: 1;
+    }
+    #detailExpandBtnBottom {
+      margin-top: 8px;
+    }
+    .detail-close { background: rgba(180,140,80,0.2); border: 1px solid rgba(180,140,80,0.4); border-radius: 20px; padding: 8px 24px; color: #d4a853; font-family: 'Cinzel', serif; font-size: 13px; cursor: pointer; transition: all 0.3s; margin-top: 10px; }
+    .detail-close:hover { background: rgba(180,140,80,0.3); }
+    .no-scroll {
+      overflow: hidden;
+      touch-action: none;
+    }
+    @keyframes rotateCW { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes rotateCCW { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
+    .corner-swastika { position: absolute; font-size: 22px; color: rgba(212,168,83,0.12); z-index: 0; }
+    .corner-swastika.tl { top: 10px; left: 10px; animation: rotateCW 15s linear infinite; }
+    .corner-swastika.tr { top: 10px; right: 10px; animation: rotateCCW 15s linear infinite; }
+    .corner-swastika.bl { bottom: 10px; left: 10px; animation: rotateCW 15s linear infinite; }
+    .corner-swastika.br { bottom: 10px; right: 10px; animation: rotateCCW 15s linear infinite; }
+
+    /* === КОМПАКТНАЯ ВЁРСТКА ОДНОЙ КАРТЫ === */
+    .single-card-scene .card-back {
+      padding: 14px 16px;
+      justify-content: space-evenly; /* раскидывает элементы равномерно по высоте */
+    }
+    .single-card-scene .aspect-badge {
+      font-size: 9px;
+      padding: 3px 10px;
+      margin-bottom: 0;
+      letter-spacing: 1px;
+      line-height: 1.2;
+    }
+    .single-card-scene .aspect-name {
+      font-size: 19px;
+      letter-spacing: 3px;
+      margin-bottom: 0;
+      line-height: 1.1;
+    }
+    .single-card-scene .aspect-divider {
+      margin: 2px auto;
+      width: 40%;
+    }
+    .single-card-scene .card-symbol-box {
+      gap: 8px;
+      margin: 0;
+    }
+    .single-card-scene .card-symbol {
+      font-size: 46px;
+    }
+    .single-card-scene .card-symbol.small {
+      font-size: 32px;
+    }
+    .single-card-scene .card-bukvitsa-name {
+      font-size: 14px;
+      margin-bottom: 0;
+      letter-spacing: 2px;
+    }
+    .single-card-scene .card-oldname {
+      font-size: 12px;
+      margin-bottom: 1px;
+      line-height: 1.3;
+    }
+    .single-card-scene .card-numeric {
+      font-size: 11px;
+      margin-bottom: 1px;
+      letter-spacing: 2px;
+    }
+    .single-card-scene .card-body {
+      font-size: 12px;
+      margin-bottom: 0;
+    }
+    .single-card-scene .star-decoration {
+      margin: 2px 0;
+      font-size: 10px;
+      letter-spacing: 5px;
+    }
+    .single-card-scene .card-udel {
+      font-size: 10px;
+      margin: 1px 0;
+      letter-spacing: 2px;
+    }
+    .single-card-scene .card-prediction {
+      font-size: 12px;
+      line-height: 1.35;
+      max-width: 240px;
+      margin-bottom: 2px;
+    }
+    .single-card-scene .yesno-btn {
+      margin-top: 2px;
+      padding: 6px 14px;
+      font-size: 10px;
+      letter-spacing: 1px;
+    }
+
+
+
+    /* === МОБИЛЬНЫЕ ФИКСЫ === */
+    @media (max-width: 768px) {
+      body { padding: 8px; }
+      .controls {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto auto;
+        gap: 8px;
+        justify-items: center;
+      }
+    .oracle-btn {
+      margin: 0;
+      width: auto;
+      min-width: 0;
+      padding: 8px 6px;
+      white-space: nowrap;
+      font-size: 13px;
+      letter-spacing: 0.5px;
+      justify-self: center;
+    }
+    #drawBtn {
+      grid-column: 1 / -1;
+      justify-self: center;
+    }
+    /* Убираем залипание hover на телефоне */
+    .oracle-btn:hover {
+      transform: none;
+    }
+    .btn-spread:hover {
+      background: linear-gradient(135deg, rgba(135,206,250,0.2), rgba(70,130,180,0.15));
+      box-shadow: none;
+    }
+    .btn-secondary:hover {
+      background: transparent;
+    }
+    .oracle-app { padding: 10px 10px 100px 10px; }
+      .title { font-size: 18px; }
+      .subtitle { font-size: 10px; }
+    .spread-container { flex-direction: column; align-items: center; gap: 20px; }
+    .spread-card-scene { width: 260px; height: 390px; }
+    .spread-card-scene .card-symbol { font-size: 42px; }
+    .spread-card-scene .card-symbol.small { font-size: 30px; }
+    .spread-card-scene .aspect-name { font-size: 18px; letter-spacing: 2px; margin-bottom: 4px; }
+    .spread-card-scene .aspect-badge { font-size: 9px; padding: 4px 12px; margin-bottom: 8px; }
+    .spread-card-scene .card-prediction { font-size: 12px; max-width: 220px; line-height: 1.4; }
+    .spread-card-scene .card-bukvitsa-name { font-size: 14px; }
+    .spread-card-scene .card-oldname { font-size: 12px; margin-bottom: 2px; }
+    .spread-card-scene .card-numeric { font-size: 11px; margin-bottom: 6px; }
+    .spread-card-scene .card-body { font-size: 11px; margin-bottom: 2px; }
+    .spread-card-scene .card-front::after { font-size: 24px; }
+    .spread-card-scene .card-front-label { font-size: 9px; bottom: 20px; }
+    .spread-card-scene .star-decoration { font-size: 10px; margin: 4px 0; }
+    .spread-label { font-size: 12px; margin-bottom: 6px; }
+      .bukvitsa-grid { max-width: 100%; width: 100%; gap: 2px; padding: 3px; }
+      .grid-cell { padding: 1px; border-radius: 3px; min-width: 0; }
+.grid-cell .cell-symbol { font-size: 20px; }
+.grid-cell .cell-symbol-sm { font-size: 14px; }
+.grid-cell .cell-number { font-size: 9px; font-weight: bold; color: #d4a853; }
+.grid-divider { font-size: 9px; font-weight: bold; padding: 4px 0; margin: 4px 0; }
+    }
+    @media (max-height: 450px) and (orientation: landscape) {
+      .oracle-app { padding: 8px 8px 60px 8px; }
+      .controls {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto auto;
+        gap: 8px;
+        justify-items: center;
+      }
+      .oracle-btn {
+        margin: 0;
+        width: auto;
+        min-width: 0;
+        padding: 8px 6px;
+        white-space: nowrap;
+        font-size: 13px;
+        letter-spacing: 0.5px;
+        justify-self: center;
+      }
+      #drawBtn {
+        grid-column: 1 / -1;
+        justify-self: center;
+      }
+      .oracle-btn:hover {
+        transform: none;
+      }
+      .btn-spread:hover {
+        background: linear-gradient(135deg, rgba(135,206,250,0.2), rgba(70,130,180,0.15));
+        box-shadow: none;
+      }
+      .btn-secondary:hover {
+        background: transparent;
+      }
+      .bukvitsa-grid { max-width: 85vw; gap: 2px; padding: 6px; }
+      .grid-cell { padding: 1px; border-radius: 4px; }
+      .grid-cell .cell-symbol { font-size: 16px; }
+      .grid-cell .cell-symbol-sm { font-size: 11px; }
+      .grid-cell .cell-number { font-size: 7px; }
+      .grid-divider { font-size: 8px; padding: 3px 0; margin: 2px 0; }
+      .title { font-size: 14px; }
+      .subtitle { font-size: 9px; }
+    }
+  </style>
+</head>
+<body>
+
+
+<div class="oracle-app">
+  <div class="corner-swastika tl">&#x534D;</div>
+  <div class="corner-swastika tr">&#x5350;</div>
+  <div class="corner-swastika bl">&#x534D;</div>
+  <div class="corner-swastika br">&#x5350;</div>
+
+  <div class="title">&#x2600; БУКВИЦА Оракул Матрица 7 тел &#x2600;</div>
+  <div class="subtitle">Коловрат 49 знаков Четверичность 196 — Правь, Навь, Явь, Славь</div>
+  <div class="glow-line"></div>
+  <div class="controls">
+    <button class="oracle-btn" id="drawBtn" onclick="drawBukvitsa()">◈ ПОЛУЧИТЬ ЗНАК ◈</button>
+    <button class="oracle-btn btn-spread" id="spreadBtn" onclick="toggleSpreadMode()">◈ РАСКЛАД 3 КАРТЫ ◈</button>
+    <button class="oracle-btn btn-secondary" id="toggleBtn" onclick="toggleGrid()">📜 СЕТКА</button>
+  </div>
+  <div class="hint" id="hintText">Сосредоточься на вопросе и нажми кнопку</div>
+
+  <!-- === РЕЖИМ ОДНОЙ КАРТЫ === -->
+  <div id="singleMode">
+    <div class="single-card-scene" id="cardScene">
+      <div class="card" id="tarotCard">
+        <div class="card-face card-front">
+          <div class="card-front-label">НАЖМИ ДЛЯ ЗНАКА</div>
+        </div>
+        <div class="card-face card-back" id="cardBack">
+          <div class="aspect-badge" id="aspectBadge">ОБРАЗ</div>
+          <div class="aspect-name" id="aspectName">ДАР</div>
+          <div class="aspect-divider"></div>
+          <div class="card-symbol-box">
+            <div class="card-symbol" id="cardSymbolCap">А</div>
+            <div class="card-vs">&#x25C8;</div>
+            <div class="card-symbol small" id="cardSymbolLow">а</div>
+          </div>
+          <div class="card-bukvitsa-name" id="cardBukvitsaName">АЗЪ</div>
+          <div class="card-oldname" id="cardOldName">Аჳъ</div>
+          <div class="card-numeric" id="cardNumeric">1 — Единъ</div>
+          <div class="card-body" id="cardBody"></div>
+          <div class="card-udel" id="cardUdel">✦ УДЕЛ ПО ЗНАКУ ✦</div>
+          <div class="card-prediction" id="cardPrediction">Послание предков...</div>
+          <button class="yesno-btn" onclick="showYesNo(event)">◈ ПОЛУЧИТЬ ОТВЕТ ◈</button>
+<button class="yesno-btn" id="aiChatBtn" onclick="toggleAIChat(event)" style="display:none; margin-top:6px; border-color:rgba(100,240,220,0.4); color:#a0f0e0; text-shadow:0 0 8px rgba(100,240,220,0.3);">🤖 Спросить ИИ</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- === РАСКЛАД 3 КАРТЫ === -->
+  <div class="spread-container" id="spreadMode">
+    <!-- Карта 1: Прошлое -->
+    <div class="spread-card-wrapper">
+      <div class="spread-label past">&#x263E; Прошлое</div>
+      <div class="spread-card-scene" id="cardScene1">
+        <div class="card" id="card1">
+          <div class="card-face card-front">
+            <div class="card-front-label">ПРОШЛОЕ</div>
+          </div>
+          <div class="card-face card-back" id="back1">
+            <div class="aspect-badge" id="aspectBadge1">ОБРАЗ</div>
+            <div class="aspect-name" id="aspectName1">ДАР</div>
+            <div class="aspect-divider"></div>
+            <div class="card-symbol-box">
+              <div class="card-symbol" id="cardSymbolCap1">А</div>
+              <div class="card-vs">&#x25C8;</div>
+              <div class="card-symbol small" id="cardSymbolLow1">а</div>
+            </div>
+            <div class="card-bukvitsa-name" id="cardBukvitsaName1">АЗЪ</div>
+            <div class="card-oldname" id="cardOldName1">Аჳъ</div>
+            <div class="card-numeric" id="cardNumeric1">1 — Единъ</div>
+            <div class="card-body" id="cardBody1"></div>
+            <div class="card-udel" id="cardUdel1">✦ УДЕЛ ПО ЗНАКУ ✦</div>
+            <div class="card-prediction" id="cardPrediction1">Послание предков...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Карта 2: Настоящее -->
+    <div class="spread-card-wrapper">
+      <div class="spread-label present">&#x2600; Настоящее</div>
+      <div class="spread-card-scene" id="cardScene2">
+        <div class="card" id="card2">
+          <div class="card-face card-front">
+            <div class="card-front-label">НАСТОЯЩЕЕ</div>
+          </div>
+          <div class="card-face card-back" id="back2">
+            <div class="aspect-badge" id="aspectBadge2">ОБРАЗ</div>
+            <div class="aspect-name" id="aspectName2">ДАР</div>
+            <div class="aspect-divider"></div>
+            <div class="card-symbol-box">
+              <div class="card-symbol" id="cardSymbolCap2">А</div>
+              <div class="card-vs">&#x25C8;</div>
+              <div class="card-symbol small" id="cardSymbolLow2">а</div>
+            </div>
+            <div class="card-bukvitsa-name" id="cardBukvitsaName2">АЗЪ</div>
+            <div class="card-oldname" id="cardOldName2">Аჳъ</div>
+            <div class="card-numeric" id="cardNumeric2">1 — Единъ</div>
+            <div class="card-body" id="cardBody2"></div>
+            <div class="card-udel" id="cardUdel1">✦ УДЕЛ ПО ЗНАКУ ✦</div>
+            <div class="card-prediction" id="cardPrediction2">Послание предков...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Карта 3: Будущее -->
+    <div class="spread-card-wrapper">
+      <div class="spread-label future">&#x2600; Будущее</div>
+      <div class="spread-card-scene" id="cardScene3">
+        <div class="card" id="card3">
+          <div class="card-face card-front">
+            <div class="card-front-label">БУДУЩЕЕ</div>
+          </div>
+          <div class="card-face card-back" id="back3">
+            <div class="aspect-badge" id="aspectBadge3">ОБРАЗ</div>
+            <div class="aspect-name" id="aspectName3">ДАР</div>
+            <div class="aspect-divider"></div>
+            <div class="card-symbol-box">
+              <div class="card-symbol" id="cardSymbolCap3">А</div>
+              <div class="card-vs">&#x25C8;</div>
+              <div class="card-symbol small" id="cardSymbolLow3">а</div>
+            </div>
+            <div class="card-bukvitsa-name" id="cardBukvitsaName3">АЗЪ</div>
+            <div class="card-oldname" id="cardOldName3">Аჳъ</div>
+            <div class="card-numeric" id="cardNumeric3">1 — Единъ</div>
+            <div class="card-body" id="cardBody3"></div>
+            <div class="card-udel" id="cardUdel1">✦ УДЕЛ ПО ЗНАКУ ✦</div>
+            <div class="card-prediction" id="cardPrediction3">Послание предков...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <div class="grid-section" id="gridSection">
+    <div class="grid-title">&#x25C8; СВЯЩЕННАЯ СЕТКА 7&#xD7;7 &#x25C8;</div>
+    <div class="grid-subtitle">Нажми на буквицу для всех аспектов</div>
+    <div class="bukvitsa-grid" id="bukvitsaGrid"></div>
+  </div>
+</div>
+ <!-- ================= ИИ-ЧАТ ОРАКУЛА ================= -->
+<div id="ai-chat-container" style="display:none; max-width:600px; width:100%; margin:20px auto; border:1px solid rgba(180,140,80,0.4); border-radius:12px; background:linear-gradient(135deg, #1a0f0a 0%, #2d1b0e 100%); overflow:hidden; position:relative; z-index:1;">
+
+
+  <div style="background:rgba(180,140,80,0.15); border-bottom:1px solid rgba(180,140,80,0.3); padding:10px 14px; font-family:'Cinzel',serif; font-size:13px; color:#d4a853; letter-spacing:2px; display:flex; justify-content:space-between; align-items:center;">
+    <span>☀ Беседа с Оракулом ИИ</span>
+    <div style="display:flex; gap:8px;">
+      <button onclick="downloadChatHistory()" style="background:rgba(180,140,80,0.2); border:1px solid rgba(180,140,80,0.4); color:#d4a853; padding:5px 12px; cursor:pointer; border-radius:20px; font-family:'Cinzel',serif; font-size:10px; letter-spacing:1px;">💾 Сохранить</button>
+      <button onclick="closeAIChat()" style="background:rgba(180,120,220,0.15); border:1px solid rgba(180,120,220,0.5); color:#dcc8ff; padding:5px 12px; cursor:pointer; border-radius:20px; font-family:'Cinzel',serif; font-size:10px; letter-spacing:1px; text-shadow:0 0 6px rgba(180,120,220,0.4);">✕ Закрыть</button>
+    </div>
+  </div>
+
+
+  <div id="ai-chat-messages" style="height:280px; overflow-y:auto; padding:12px; display:flex; flex-direction:column; gap:8px; font-family:'Noto Serif',serif; font-size:13px; color:#c8b090;"></div>
+  <div style="display:flex; border-top:1px solid rgba(180,140,80,0.2); padding:10px; gap:8px; background:rgba(0,0,0,0.2);">
+    <input type="text" id="ai-user-input" placeholder="Задайте вопрос Оракулу..." style="flex:1; padding:8px 12px; border-radius:20px; border:1px solid rgba(180,140,80,0.3); background:rgba(30,20,10,0.6); color:#e8c880; font-family:'Noto Serif',serif; font-size:13px; outline:none;">
+    <button onclick="sendUserMessage()" style="background:linear-gradient(135deg, #b8860b 0%, #f4d03f 50%, #b8860b 100%); border:1px solid rgba(255,215,0,0.6); color:#1a0f0a; font-family:'Cinzel',serif; font-size:11px; font-weight:bold; padding:8px 16px; border-radius:20px; cursor:pointer; letter-spacing:1px;">Спросить</button>
+  </div>
+</div>
+<!-- ================= КОНЕЦ ИИ-ЧАТА ================= -->
+
+<div class="detail-overlay" id="detailOverlay" onclick="closeDetail()"></div>
+<div class="detail-popup" id="detailPopup">
+  <div class="detail-popup-content">
+    <div class="detail-both-forms">
+      <div class="detail-form-box">
+        <div class="detail-form-label">Устав</div>
+        <div class="detail-form-symbol" id="detailSymbolCap"></div>
+      </div>
+      <div class="detail-vs">&#x25C8;</div>
+      <div class="detail-form-box">
+        <div class="detail-form-label">Скоропись</div>
+        <div class="detail-form-symbol small" id="detailSymbolLow"></div>
+      </div>
+    </div>
+    <div class="detail-name" id="detailName"></div>
+    <div class="detail-oldname" id="detailOldname"></div>
+<div class="detail-expand-btn" id="detailExpandBtnTop" onclick="toggleDetailExpand()">▼ ПОДРОБНЕЕ</div>
+<div class="detail-full-desc" id="detailFullDesc"></div>
+<div class="detail-expand-btn" id="detailExpandBtnBottom" onclick="toggleDetailExpand()" style="display:none;">▲ СВЕРНУТЬ</div>
+    <div class="detail-numeric" id="detailNumeric"></div>
+    <div class="detail-body" id="detailBody"></div>
+    <div class="detail-encyclopedia">
+      <div class="detail-encyclopedia-title">&#x25C8; ОБРАЗЫ ПРЕДКОВ &#x25C8;</div>
+      <div id="detailEncyclopedia"></div>
+    </div>
+    <div class="detail-aspect slav">
+      <div class="detail-aspect-title slav">&#x2726; Мир Предков (Славь)</div>
+      <div class="detail-aspect-text" id="detailSlav"></div>
+    </div>
+    <div class="detail-aspect prav">
+      <div class="detail-aspect-title prav">&#x2600; Светлое Положение (Правь)</div>
+      <div class="detail-aspect-text" id="detailPrav"></div>
+    </div>
+    <div class="detail-aspect yav">
+      <div class="detail-aspect-title yav">&#x2696; Состояние Лада (Явь)</div>
+      <div class="detail-aspect-text" id="detailYav"></div>
+    </div>
+    <div class="detail-aspect nav">
+      <div class="detail-aspect-title nav">&#x263E; Теневое Положение (Навь)</div>
+      <div class="detail-aspect-text" id="detailNav"></div>
+    </div>
+    <button class="detail-close" onclick="closeDetail()">ЗАКРЫТЬ</button>
+  </div>
+</div>
+
+<script>
+
+const bukvitsy = [
+  { symbolCap: "А", symbolLow: "а", oldName: "Бог, Живущий и созидающий на Земле, Я, начало",
+fullDesc: "<span style='background:rgba(212,168,83,0.15); padding:2px 6px; border-radius:4px; color:#e8c880;'>Азъ</span> — это не просто первая буквица, а ключ к пониманию себя как творца. В древности этот знак ставили в начале любого дела, чтобы призвать благословение Рода. Он говорит: всё начинается с внутренней искры, с осознания своей божественной природы. Когда выпадает Азъ, это знак, что время действовать и брать ответственность за свою судьбу.\n\n &nbsp; <span style='color:#e8d5b5; font-weight:bold; text-shadow:0 0 4px rgba(212,168,83,0.25);'>Основопологающие образы </span> - Изначалье, исток единый имеют, как бы, однородную структуру, единственную форму: «то, что было прежде всего»  - означает движение. При этом стоит понимать, что исток не в прошлом, а в вечности. Луч, протянутый из вечности и безконечности в здесь и сейчас.\n\n &nbsp;<span style='color:#e8d5b5; font-weight:bold; text-shadow:0 0 4px rgba(212,168,83,0.25);'>Бог живущий на Земле сотворяша.</span> Сущность (Аzъ), открывшая для себя существование высшей силы (Боги), начинает получать ее знания (Вѣди) истечением их (Глаголи) от божественного истока, набираясь опыта своих деяний (Добро) в материальном (Єсть) и в многомерном (Есмь) мире звуков, картин, запахов, вкусов, ощущений, чувств, пространств, мерностей.\n &nbsp;– созидающее Земное Начало, имеющее Вселенский Потенциал для совершенствования Души на Золотом Пути эволюции Духа;\n &nbsp;– достойный, лидер, ас (пилотирования, какой-то професии), первый в своём деле.\n\n &nbsp;<span style='color:#e8d5b5; font-weight:bold; text-shadow:0 0 4px rgba(212,168,83,0.25);'>Буквица позволяет нам проникнуть в глубины нашего подсознания,</span> вводя нас в вечность и многомерность, поскольку там пребывает наш исток. Это означает, что вечность и многомерность является неотъемлемым аспектом нас самих и данной буквицы. Сущность каждого живого существа Атма также является проявлением вечности и бесконечности, а также обладает качествами сат-чит-ананда, т.е. вечность, знание и блаженство, поэтому Азъ описывает тот уровень осознанности, к которому все должны стремиться. Большинство людей в настоящее время не являются Асами, большая часть относится к варне Людина, выше которой следует уровень сознания или варна Человек.\n\n &nbsp;<span style='color:#e8d5b5; font-weight:bold; text-shadow:0 0 4px rgba(212,168,83,0.25);'>В период Рассвета Сварога люди могут подняться до уровня Азъ, </span> на котором они становятся подобными Богу. Можно считать, что Азъ — это есть Я, т.е. тот, кто достиг внутреннего осознания самого себя. Это также и потомок Бога, который по уровню осознанности тождествнен Богу, хотя и пребывает в плотном теле. В славянской традиции некоторые учения богами называли людей, которые вышли на уровень осознанности Асов: Сварог, Перун, Лада, Макошъ, Рожана и другие. Хотя в учениях индо-ариев к богам (дэвам) относят экспансии Вишну (служебные духи), а не людей. Существуют также и Вишну-таттва: Крышень, Рама, Нараяна, Вышень, это тоже не джива-таттва.\n\n &nbsp;<span style='color:#e8d5b5; font-weight:bold; text-shadow:0 0 4px rgba(212,168,83,0.25);'>📜 Образы буквицы: </span>\n ✨&nbsp;Человек, Аӡъ, Я, потомок Богов, живущий на Земле;\n ✨&nbsp; Я - сущность живого существа (атма)первый, Сверх-сознание (парам-атма), первая свеча, которая зажигает вторую (душа) основы, начало, новизна, обновление исток, источник, начало, начало отсчёта, изначалье суть, причина \n ✨&nbsp;Азъ -  это Сверх-человек, т.е. тот, кто осознал свою истинную сущность первая, высшая варна на Земле, следующий более высокий уровень, варна - Богъ первое, первооснова, первопричина единое, единственное, един уникальное, единственное в своём роде новая страница бытия, новое восхожэдение младость, первые шаги божественная сушность, живущая на Земле Творящее земное начало, Бог воплощенный на Земле, для совершенствования души на Восходящем Пути эволюции духа расширение влияния; первый, Сверх-сознание (парам-атма), первая свеча, которая зажигает вторую (душа)Божественное наполнение человека\n ✨&nbsp;Первый Предок, основатель Рода;\n ✨&nbsp;Единица Рода;\n ✨&nbsp;Мужское начало, мужская энергия;\n ✨&nbsp;Начало начал, новое, обновлённое;\n ✨&nbsp;Единство двух и более начал проявленных из одного Истока (Дух ,Душа, Тело);\n ✨&nbsp;Один из нас, из множества (Азъ Есмь);\n ✨&nbsp;Бог проявленный на Земле, божье создание, одно из божественных проявлений;\n ✨&nbsp;Земная ипостась Творца;\n ✨&nbsp;Воплощённый Бог;\n ✨&nbsp;Начало (клетка, семя, зародыш, Человек);\n ✨&nbsp;Человек ведущий за собой, пример для остальных, вождь;\n ✨&nbsp;Человеческое проявление на Земле;\n ✨&nbsp;Звено в цепи воплощений;\n ✨&nbsp;Один из Богов;\n ✨&nbsp;Бог живущий и сотворяющий на Земле;\n ✨&nbsp;Лучший в своём деле;\n ✨&nbsp;Уникальный, неповторимый в своём Роде;\n ✨&nbsp;Исток, источник, начало, изначалье\n ✨&nbsp;Точка отсчёта;\n ✨&nbsp;Точка росы;\n ✨&nbsp;Самое важное;\n ✨&nbsp;Самое родное;\n ✨&nbsp;Ключ;\n ✨&nbsp;Первостепенное, первородное;\n ✨&nbsp;Суть, сущность, существенное, вещество;\n ✨&nbsp;Автономность;\n ✨&nbsp;Первооснова, первопричина, повод, первое, импульс;\n ✨&nbsp;Мир причин, каузальный Мир;\n ✨&nbsp;База чего-либо, фундамент;\n ✨&nbsp;Расширение влияния;\n ✨&nbsp;Единица несущая в себе весь потенциал для развития;\n ✨&nbsp;Единый, единственный, один;\n ✨&nbsp;Оригинал, первоисточник;\n ✨&nbsp;Стержень, ось вращения;\n ✨&nbsp;То, что было прежде всего;\n ✨&nbsp;Жизненное предназначение человека;\n ✨&nbsp;Место присутствия в данный момент времени, точка отсчёта;\n ✨&nbsp;Уникальный момент и точка зарождения;\n ✨&nbsp;Вечность и один миг одновременно;\n ✨&nbsp;Первый звук проявления, воплощения (рождения);\n ✨&nbsp;Одновременно начальная точка и конечная цель;\n ✨&nbsp;Двуединство (мужчина , женщина, и связующее их звено, т.е. их чадо);\n ✨&nbsp;Движение, как первопричина и источник Жизни...\n\n &nbsp; <span style='color:#e8d5b5; font-weight:bold; text-shadow:0 0 4px rgba(212,168,83,0.25);'>📃Теневые образы:</span>\n ⚫&nbsp;рабство, робость, неуверенность, заниженная самооценка;\n ⚫&nbsp;чувство неполноценности, желание раба стать рабовладельцем;\n ⚫&nbsp;страх, потерянность, безволие, подавленность, пассивность, лень, , эгоизм, зажатость;\n ⚫&nbsp;гордыня, амбициозность и как следствие агрессивность - способ разжаться;\n ⚫&nbsp;отрицание Бога и божественного начала в себе и Мире;\n ⚫&nbsp;подражание кому-либо, полное подчинение чужим идеалам, отсутствие собственного мировосприятия и мировоззрения", name: "Аჳъ", number: 1, font: "Hirmucs", numeric: "1 — Единица", body: "🔴 Явье Тело (Плоть)",
+ encyclopedia: "Азъ — начало всего сущего, первозданная воля и искра божественного разума, открывающая путь познания себя.",
+    prav: "ИСТОК. Чистая воля, начало пути, осознание себя божественной искрой. Ты — творец своей судьбы.",
+    nav: "ЭГОИЗМ. Гордыня, духовная слепота, отрицание высших законов. Время смириться.",
+    yav: "СОТВОРЧЕСТВО. Слияние личной воли с силой созидания здесь и сейчас. Действуй.",
+    slav: "БЛАГОДАРНОСТЬ. Ситуация решается через признание опыта души и славление Рода." },
+  { symbolCap: "Б", symbolLow: "б", oldName: "Множество Богов, Буквы, знание", fullDesc: "<span style='background:rgba(212,168,83,0.15); padding:2px 6px; border-radius:4px; color:#e8c880;'>Боги</span> — это знак множественности высших сил, наполняющих мир. В древности этот символ означал не единого, а множество Богов — сил Рода, Неба, Земли и Огня, каждая из которых несёт свою мудрость и покровительство. Буквица Буки напоминает: ты никогда не один, ибо за твоей спиной стоит целый Собор Небесных наставников. Когда выпадает этот знак — время вспомнить о связи с Тонким миром и принять помощь Высших.\n\n &nbsp; <span style='color:#e8d5b5; font-weight:bold; text-shadow:0 0 4px rgba(212,168,83,0.25);'>Основополагающие образы</span> — божественное, множественное, преобладающее. Множественность как проявление Единого. Боги — это не далёкие существа, а живые энергии, действующие здесь и сейчас. Каждая буква, каждый звук — это отпечаток божественного разума, данный человеку для познания мира. Это знак того, что знание приходит через множество каналов: через род, через природу, через небесные светила и через священные знаки.\n\n &nbsp;Сущность, познавшая единство (Азъ), обращается к множеству (Боги), чтобы через разнообразие проявлений постичь глубину мироздания. Буквица (буквы,знаки) — это ключи к Вселенской книге, а Боги — её хранители. Через знаки и символы человек входит в диалог с высшими силами, получая их наставления, защиту и благословение на пути.\n Почему такой образ получается? Бог, живущий и созидающий на землях (Человек - Асъ), находится, как мы уже знаем, в начале своего безконечного Пути. Вот и 1,поэтому! Но, выполнив предначертанное на земле, он уходит в Небеса, продолжая свой Путь. А там Боги - там множество, множество Предков Рода нашего. Так как их много, но они едины по своей сути (родичи) – числового значения буквица «Б» не имеет. Безконечность не может быть выражена числом, на то она и безконечность.\n\n &nbsp; <span style='color:#e8d5b5; font-weight:bold; text-shadow:0 0 4px rgba(212,168,83,0.25);'>📜 Образы буквицы:</span>\n ✨&nbsp;Множество Богов — силы Неба, Земли, Воды и Огня;\n ✨&nbsp;Буквы как носители священного знания и мудрости;\n ✨&nbsp;Покровительство Рода и высших предков;\n ✨&nbsp;Связь между небесным и земным мирами;\n ✨&nbsp;Вселенский разум, проявленный через множество ликов;\n ✨&nbsp;Сила слова, записанного и произнесённого вслух;\n ✨&nbsp;Небесный Собор, ведущий человека по жизненному пути;\n ✨&nbsp;Ключи к тайнам бытия, скрытые в древних знаках;\n ✨&nbsp;Множественность путей, ведущих к единой Истине;\n ✨&nbsp;Благословение высших сил на начинания и труды;\n ✨&nbsp;Защита Небесного воинства в час нужды;\n ✨&nbsp;Передача знаний через родовую память и предание;\n ✨&nbsp;Священные писания и устная мудрость веков;\n ✨&nbsp;Покровительство в делах духовных и земных;\n ✨&nbsp;Мост между видимым и невидимым мирами;\n ✨&nbsp;Множество ликов единого Божества;\n ✨&nbsp;Божественные посредники между мирами;\n ✨&nbsp;Сила коллективного благословения и молитвы;\n ✨&nbsp;Знаки и символы как живой язык Вселенной;\n ✨&nbsp;Присутствие высших сил в каждом мгновении бытия;\n ✨&nbsp;Нечто большее, преобладающее;\n ✨&nbsp;Круг Богов;\n ✨&nbsp;БеЗконечное множество божественного;\n ✨&nbsp;Силы стихий;\n ✨&nbsp;Божественное, превосходящее, Высший разум;\n ✨&nbsp;Множественные возможности или множественный потенциал Богов;\n ✨&nbsp;Непостижимо Великие;\n ✨&nbsp;Всемогущие;\n ✨&nbsp;Созидатели, создатели;\n ✨&nbsp;Старшие;\n ✨&nbsp;Высшие силы, Небесные покровители, Высший Разум;\n ✨&nbsp;Высшая форма сознания;\n ✨&nbsp;Предки Наши, ПраРодители;\n ✨&nbsp;Духовный наставник;\n ✨&nbsp;Наши Наставники поделившиеся c нами своей Мудростью;\n ✨&nbsp;Наши вдохновители;\n ✨&nbsp;Богатство;\n ✨&nbsp;Те, кем мы ещё возможно не являемся, но стремимся стать посредством Духовного развития;\n ✨&nbsp;Земные Боги - живущие на Земле Предки;\n ✨&nbsp;Образец для человека;\n ✨&nbsp;Изначальная форма, структура;\n ✨&nbsp;Первоисточник множества знаний;\n ✨&nbsp;Объединяющие в себе всё, всю информацию, всю энергию;\n ✨&nbsp;Женское, соединительное, всесогласующее начало;\n ✨&nbsp;Множественные проявления единого целого;\n ✨&nbsp;Возвеличивание, обожествление;\n ✨&nbsp;Атма;\n ✨&nbsp;Созидатели, создатели;\n ✨&nbsp;Богъ - существует две категории Богов: а) служебные функциональные духи (дэвы), которые могущественны и обладают всеми достояниями, но не имеют своих целей и воли и деваки дэвы (реальные живые существа), которые имеют свои цели и собствеую свободную волю. Живые существа, проходящие обучение на Земле могут достигать любых уровней сознания и положения в отличие от дэвов,\n\n &nbsp; <span style='color:#e8d5b5; font-weight:bold; text-shadow:0 0 4px rgba(212,168,83,0.25);'>📃Теневые образы:</span>\n &nbsp;служение одному Богу, служение чужим идеалам;\n ⚫&nbsp;фанатизм, обожествление кого-либо;\n ⚫&nbsp;раболепство, заискивание, самоуничижение;\n ⚫&nbsp;эгрегориальная зависимость, сектантство; \n ⚫&nbsp;потеря связи с Родом и Предками, безродность;\n ⚫&nbsp;неуважение к старшим;\n ⚫&nbsp;отсутствие ориентиров в жизни, либо ложные ориентиры;\n ⚫&nbsp;жизнь по Кривде, а не по Правде;\n ⚫&nbsp;отрицание единства с Природой и Миром;\n ⚫&nbsp;бедность сознания и осознания;\n ⚫&nbsp;самообман, предательство...", name:"БОГИ (Буки)", number: 2, font: "Hirmucs", numeric: "—", body: "🔴 Явье Тело (Плоть)",
+ encyclopedia: "Боги — знак высших сил и родового покровительства, напоминание о связи между небом и землёй.",
+    prav: "ПОКРОВИТЕЛЬСТВО. Прямой совет от высших сил, верный ориентир. Слушай знаки.",
+    nav: "БЕЗВЕРИЕ. Страх перед будущим, разрыв связи с Тонким миром. Верни веру.",
+    yav: "РОДОВОЙ КАНАЛ. Осознание себя живым звеном в цепи предков. Продолжай традицию.",
+    slav: "ПРИСУТСТВИЕ. Боги уже ведут тебя. Отпусти контроль и прояви почтение." },
+  { symbolCap: "В", symbolLow: "в", oldName: "Мудрость на Земле и Небесах ведаю, Ведать, мудрость",
+fullDesc: "<span style='background:rgba(212,168,83,0.15); padding:2px 6px; border-radius:4px; color:#e8c880;'>Вѣди</span> — это знак глубинного знания, живущего в крови и душе. В древности слово «вѣдать» означало не просто «знать», а «постигать сердцем», «видеть сквозь», «быть единым с истиной». Эта буквица — ключ к родовой памяти, к священным знаниям, переданным от предков через века. Она говорит: мудрость не в книгах, а в твоей крови, в твоём духовном опыте, в способности слышать Небо и понимать Землю. Когда выпадает Вѣди — время прислушаться к внутреннему голосу и довериться знанию, что старше тебя.\n\n &nbsp; <span style='color:#e8d5b5; font-weight:bold; text-shadow:0 0 4px rgba(212,168,83,0.25);'>Основополагающие образы</span> — Ведание как единство Неба и Земли. Это не сухой ум, а живое постижение законов мироздания через опыт, через связь с природой, через родовую память. Вѣди — это священные тропы знания, по которым шли наши Предки, собирая мудрость из каждого мгновения бытия. Это умение читать знаки Вселенной, понимать язык ветра, воды, огня и звёзд.\n\n &nbsp;Сущность, познавшая множественность высших сил (Боги), обращается к Вѣди — к знанию, как жить в согласии с этими силами. Через ведание человек входит в поток мироздания, перестаёт бороться с течением, а начинает плыть по реке Судьбы, понимая каждый её поворот. Вѣди — это свет разума, освещающий путь не только себе, но и ближним. Мудрость на Земле и Небесах — знание, охватывающее все миры.;\n &nbsp;<span style='background:rgba(212,168,83,0.15); padding:2px 6px; border-radius:4px; color:#e8c880;'>Вѣди</span> — Веди (в) (вiеди.)- мудрость, объединяющая небесное и земное, то есть единящая две системы. Множество определенное (преобладание), собранное во едино; определенность; направленность; связующее звено между двумя системами (между прошлым и будущим, между светлым и темным, между излучением и поглощением и т. д.), т.е. это есть взаимосвязь. А она всегда чем-то наполнена. Это не просто точка соприкосновения, это наполненность. В качестве примера рассмотрим следующую структуру: прошлое, настоящее и будущее. Этот наполненный объем, связывающий обе крайние cтруктуры, есть настоящее, т.е. что-то стоЯщее, стОящее, а это прямо на нем: на-стоящее. Ведами соединяются эти две структуры. Мы - точка передачи - врата. Еще одна структура: изначальный мрак – многоцветие (многосветие) - чистый свет. И здесь многоцветие выступает как связующая структура в двух системах. Поэтому «Веды» - это не только мудрость, знание. Это весь спектр ВСЕГО: цветов, запахов, вкусов, ощущений. Числовое значение 2 - соотносится с количеством связанных информационных систем. Настоящее только миг, его как бы и нет.\n\nПозри: «АЗЪ» - начало Пути. Далее «БОГИ» - продолжение того же Пути, но на другом уровне (на Небесах), и «Вѣди», где ѣ - соединение земного (А) и небесного (Б), то есть соединение двух систем.\n\n &nbsp; <span style='color:#e8d5b5; font-weight:bold; text-shadow:0 0 4px rgba(212,168,83,0.25);'>Образы буквицы:</span>;\n ✨&nbsp;Ведать — постигать сердцем, видеть суть сквозь видимость;\n ✨&nbsp;Родовая память, кровная мудрость предков;\n ✨&nbsp;Знания, переданные через поколения устом и духом;\n ✨&nbsp;Небесные и земные законы, постижимые разумом;\n ✨&nbsp;Священные Веды — изначальные тексты бытия;\n ✨&nbsp;Постижение сути вещей, а не только их оболочки;\n ✨&nbsp;Мудрость сердца, глубже любого умозаключения;\n ✨&nbsp;Сакральные свитки, родовые предания, заветы;\n ✨&nbsp;Знание путей, троп и дорог — земных и духовных;\n ✨&nbsp;Провидение, ясновидение, способность видеть насквозь;\n ✨&nbsp;Ведун, ведьма, мудрец — хранитель тайных знаний;\n ✨&nbsp;Гармония мысли и действия, слово и дело;\n ✨&nbsp;Слияние разума и духа в едином порыве;\n ✨&nbsp;Тайны природы, её язык, доступный посвящённым;\n ✨&nbsp;Звёздные знания, небесная навигация судьбы;\n ✨&nbsp;Целительство, знахарство, мудрость трав и слов;\n ✨&nbsp;Генетическая память, записанная в крови рода;\n ✨&nbsp;Путь познания себя как отражения Вселенной;\n ✨&nbsp;Связь времён — прошлое, настоящее и будущее в одном;\n ✨&nbsp;Истина, открытая через личный опыт и служение;\n ✨&nbsp;Наставления старших, мудрых и прошедших огонь;\n ✨&nbsp;Слово как носитель знания, живое и творящее;\n ✨&nbsp;Свет разума, просвещающий тьму незнания;\n ✨&nbsp;Внутренний голос, интуиция, глас души;\n ✨&nbsp;Закономерности мироздания, постижимые через лад.\n ✨&nbsp;Ведать мудрость. Знать что-либо. Познавать истоки 3-х Миров – Правь, Навь, Славь. Отображает стремление к познанию чего-либо не ведомого до сего времени и не знаемого ранее;\n ✨&nbsp;множество определенное (преобладание), собранное воедино;\n ✨&nbsp;определенность, направленность;\n ✨&nbsp;глубинные знание, информация;\n ✨&nbsp;мудрость на земле и на небесах, связующее звено между двумя системами (между прошлым и будущим, между светлым и темным, между излучением и поглощением и т. д.), т.е. это есть взаимосвязь;\n ✨&nbsp;наполненность, понимание целого;\n ✨&nbsp;праматерия, несущая глубинную информацию из мира Прави;\n ✨&nbsp;познание мира Яви – есть познание миров Прави и Нави (Слави);\n ✨&nbsp;Мɣдрость на Ӡємлє и Небесах, две системы собранные воедино;\n ✨&nbsp;Глубина, нутро, глубинные знания, наполненность, объём;\n ✨&nbsp;Суть, смысл, замысел;\n ✨&nbsp;Всеобъемлющее знание, Вѣды;\n ✨&nbsp;Энерго - информационный взаимообмен с Творцом;\n ✨&nbsp;Безграничный океан знаний;\n ✨&nbsp;Целостное восприятие Мiра;\n ✨&nbsp;Познание (то что познано, и что предстоит познать);\n ✨&nbsp;Направленность, стремление к изучению, знанию;\n ✨&nbsp;Определённое множество (преобладание);\n ✨&nbsp;Множество определений, собранных в единую систему знаний;\n ✨&nbsp;Связующее звено между двумя системами (между прошлым и будущим, между светлым и темным, между излучением и поглощением и т. д.) т.е. это есть взаимосвязь;\n ✨&nbsp;Всеобъемлющая информация, информационное пространства;\n ✨&nbsp;Вода причинно-следственного океана, спектр всего: цветов, запахов, вкусов, ощущений;\n ✨&nbsp;Наполнение энерго-информационного потока;\n ✨&nbsp;Вода как носитель информации;\n ✨&nbsp;Подтекст открытой информации;\n ✨&nbsp;Энергия мироздания;\n ✨&nbsp;Погружение во что-либо, познание глубины, направление внутрь;\n ✨&nbsp;Способность вОСЬпринимать информацию;\n ✨&nbsp;Божественная информационная материя;\n ✨&nbsp;Предназначение женщины, как связующего звена между двумя Родами, как хранительницы информации двух Родов...\n\n &nbsp; <span style='color:#e8d5b5; font-weight:bold; text-shadow:0 0 4px rgba(212,168,83,0.25);'>Теневые образы буквицы В (Вѣди):</span>\n ⚡&nbsp;чуждая, неприемлемая мудрость, невежество;\n ⚡&nbsp;несистемное знание;\n ⚡&nbsp;незнание или поверхностное знание;\n ⚡&nbsp;предубеждение;\n ⚡&nbsp;бессвязность;\n ⚡&nbsp;дезинформация;\n ⚡&nbsp;подверженность чужому влиянию и манипулированию;\n ⚡&nbsp;дуальность мировоззрения;\n ⚡&nbsp;попытки манипулировать человеком, используя его стремления к познанию, давая не всю или искаженную информацию;\n ⚡&nbsp;не восприятие точки зрения другого человека;\n ⚡&nbsp;чрезмерное увлечение теорией без соответствующего ее применения в своей жизни;\n ⚡&nbsp;неприемлемая для нас информация;\n ⚡&nbsp;чужая мудрость;\n ⚡&nbsp;поверхностное восприятие, оценка, суждение;\n ⚡&nbsp;невежество, нежелание учится;\n ⚡&nbsp;предрассудок, предубеждение;\n ⚡&nbsp;беЗсвязность, нелогичность;\n ⚡&nbsp;искажение информации;\n ⚡&nbsp;дуальное, черно-белое восприятие Мира;\n ⚡&nbsp;скрытность;\n ⚡&nbsp;невнимательность, неспособность подмечать детали;\n ⚡&nbsp;неспособность к анализу и свитию информации...",
+ name: "Вѣди (Веди)", number: 3, font: "Hirmucs", numeric: "2 — Два", body: "🔴 Явье Тело (Плоть)",
+  encyclopedia: "Веди — воплощение мудрости веков, знания, переданного от предков через кровь и опыт.",
+    prav: "МУДРОСТЬ. Глубинное понимание космических и земных законов. Ты знаешь путь.",
+    nav: "НЕВЕЖЕСТВО. Поверхностность ума, нежелание учиться на ошибках. Время прозреть.",
+    yav: "ВЕДАНЬЕ. Применение высших знаний в повседневных делах. Знание — в действии.",
+    slav: "ПАМЯТЬ КРОВИ. Ответ придёт как древнее интуитивное воспоминание предков." },
+  { symbolCap: "Г", symbolLow: "г", oldName: "Передача мудрости, Говорить, действие", name: "ГЛАГОЛИ", number: 4, font: "Hirmucs", numeric: "3 — Три", body: "🔴 Явье Тело (Плоть)",
+encyclopedia: "Глаголи — сила живого слова, способная творить и разрушать, вдохновлять и наставлять.",
+    prav: "ТРАНСЛЯЦИЯ. Уверенное самовыражение, передача знаний, чистый поток слова.",
+    nav: "ИСКАЖЕНИЕ. Сплетни, пустословие, разрушительные речи. Молчи, если не правда.",
+    yav: "ЖИВОЕ СЛОВО. Способность вдохновлять речью и менять реальность. Говори с любовью.",
+    slav: "МОЛИТВА-СЛАВЛЕНИЕ. Обратись к Высшему с благодарным словом, и хаос отступит." },
+  { symbolCap: "Д", symbolLow: "д", oldName: "Развитие достаток, накопление", name: "ДОБРО", number: 5, font: "Hirmucs", numeric: "4 — Четыре", body: "🔴 Явье Тело (Плоть)",
+  encyclopedia: "Добро — символ накопления блага, духовного и земного, созидания и щедрости.",
+    prav: "СОЗИДАНИЕ. Накопление духовного и материального блага, развитие, рост.",
+    nav: "РАЗРУШЕНИЕ. Жажда наживы, эгоцентризм, финансовый кризис. Отпусти жадность.",
+    yav: "БЛАГОДЕЯНИЕ. Гармония между духовными ценностями и земным достатком. Делись.",
+    slav: "ДАР РОДА. Ситуация разрешится через неожиданную помощь из твоего древа." },
+  { symbolCap: "Е", symbolLow: "е", oldName: "Пять элементов жизни, форма жизни бытие, существование", name: "Єсть", number: 6, font: "Hirmucs2",  numeric: "5 — Пять", body: "🔴 Явье Тело (Плоть)",
+  encyclopedia: "Есть — знак присутствия здесь и сейчас, принятия материального мира во всей его полноте.",
+    prav: "БЫТИЕ. Жизнь в материальном мире, принятие физической реальности. Ты здесь.",
+    nav: "ЗАСТРЕВАНИЕ. Приземлённость, потакание низшим инстинктам. Поднимись выше.",
+    yav: "МАТЕРИАЛИЗАЦИЯ. Наполнение плотного мира высокими смыслами. Твори красоту.",
+    slav: "ОСВЯЩЕНИЕ. Обычные вещи сейчас несут сакральный урок духа. Видь знаки." },
+  { symbolCap: "𝐄 ", symbolLow: "е", oldName: "Связка, определние существование, Суть, многомерность", name: "ЕСМЬ (ЙЕ)", number: 7, font: "Fedorovsk", numeric: "—", body: "🔴 Явье Тело (Плоть)",
+  encyclopedia: "Есмь — ключ к многомерности бытия, выход за рамки видимого и познание сути вещей.",
+    prav: "МНОГОМЕРНОСТЬ. Выход сознания за рамки трёхмерного пространства. Раскрой глаза.",
+    nav: "СЛЕПОТА. Жёсткое отрицание невидимого, страх тонких энергий. Не бойся тьмы.",
+    yav: "ЦЕЛОСТНОСТЬ. Точка сборки, удержание всех граней бытия. Ты целостен.",
+    slav: "ВНЕ ВРЕМЕНИ. Душа соприкоснулась с вечностью. Всё идёт по Высшему плану." },
+  { symbolCap: "Ж", symbolLow: "ж", oldName: "Жизнь многогранная, во всём её многообразии", name: "ЖИВОТЪ (Жива)", number: 8, font: "Hirmucs", numeric: "—", body: "🟠 Жарье Тело",
+  encyclopedia: "Животъ — носитель жизненной силы, крепости духа и плодородия творческого огня.",
+    prav: "СИЛА ЖИЗНИ. Крепкое здоровье, мощный творческий потенциал. Ты полон сил.",
+    nav: "УВЯДАНИЕ. Апатия, застой сил, потеря ориентиров. Время ожить заново.",
+    yav: "ЖИЗНЕННОСТЬ. Превращение стагнации в созидательный импульс. Двигайся.",
+    slav: "БЕССМЕРТИЕ. Твоя искра жизни вечна, предки передают импульс исцеления." },
+  { symbolCap: "S", symbolLow: "s", oldName: "Неизведанное, неведомое, сверх, очень, весьма, не познанное", name: "SѣЛО Зело (Дзело) ДЗ", number: 9, font: "Hirmucs", numeric: "6 — Шесть", body: "🟠 Жарье Тело",
+  encyclopedia: "Зело — знак неизведанного, смелого прорыва границ и обретения сверхвозможностей.",
+    prav: "НЕИЗВЕДАННОЕ. Смелый шаг в неизвестность, сверхвозможности. Рискни.",
+    nav: "ХАОС. Избыток неконтролируемых эмоций, разрушающий границы. Укроти стихию.",
+    yav: "ОСВОЕНИЕ. Спокойное превращение тайн в личную силу. Ты справишься.",
+    slav: "ВЫСШИЙ УРОК. Ситуация дана для ковки духа, поблагодари за сложность." },
+  { symbolCap: "З", symbolLow: "з", oldName: "Почва, опора, небесное тѣло, стихия, воплощение энергии созидания (материализации)", name: "ЗЄМЛѦ Ӡемля", number: 10, font: "Hirmucs", numeric: "7 — Семь", body: "🟠 Жарье Тело",
+  encyclopedia: "Земля — свещенная опора, плодородная матерь, дающая корни и стабильность.",
+    prav: "ОПОРА. Плотный фундамент, стабильность, родной дом. Ты на своём месте.",
+    nav: "ЗЫБКОСТЬ. Потеря опор, страх нищеты, неуверенность. Укоренись заново.",
+    yav: "ЗАЗЕМЛЕНИЕ. Умение крепко стоять на ногах, взращивая земные плоды. Трудись.",
+    slav: "СВЯТАЯ МАТЬ. Духи Земли защищают тебя, ты в безопасности." },
+  { symbolCap: "И", symbolLow: "и", oldName: "Соединение единства, Союз, единение, душевная близость, равновесие и лад, связь, точка сборки", name: "ИЖЄ (Иже)", number: 11, numeric: "8 — Осьмь", body: "🟠 Жарье Тело",
+  encyclopedia: "Иже — символ равновесия и союза, слияния противоположностей в гармоничное целое.",
+    prav: "РАВНОВЕСИЕ. Обретение лада, истинный союз равных частей. Гармония.",
+    nav: "РАСКОЛ. Ссоры, внутренний дисбаланс, борьба противоположностей. Примирись.",
+    yav: "ПРИМИРЕНИЕ. Нахождение мудрого компромисса в материальных делах. Ищи середину.",
+    slav: "ЛУЧ СОГЛАСИЯ. Божественные весы выравниваются через внутреннее спокойствие." },
+  { symbolCap: "İ", symbolLow: "i", oldName: "Энерго-информационный поток, исходящий от Тварца, поток жизненной силы, Нисходящий образ, нисходящая энергия", name: "İжєи (Ижеи)", number: 12, numeric: "10 — Десять", body: "🟠 Жарье Тело",
+  encyclopedia: "Ижеи — вертикальный поток света, прямой канал связи с мудростью Рода и Неба.",
+    prav: "ПОТОК СВЕТА. Вертикальный чистый луч знаний напрямую от Рода. Прими.",
+    nav: "ИЗОЛЯЦИЯ. Одиночество ума, блуждание в ментальных концепциях. Выйди наружу.",
+    yav: "ПРОВОДНИК. Воплощение космических озарений в земные дела. Делись светом.",
+    slav: "ВЕРТИКАЛЬ. Напрямую обратись к памяти Первопредков, ответ уже в тебе." },
+  { symbolCap: "Ї", symbolLow: "ї", oldName: "Община, общинная истина, общность людей, Общее дело, Совместные деяния, труд", name: "ЇНИТЬ", number: 13, numeric: "11", body: "🟠 Жарье Тело",
+  encyclopedia: "Инить — знак соборности, единства семьи и рода, крепкой общинной нити.",
+    prav: "ОБЩИНА. Согласие в семье, единое родовое поле. Единство.",
+    nav: "ОТЧУЖДЕНИЕ. Разрыв связей, эгоистичное бегство из круга близких. Вернись.",
+    yav: "КОЛЛЕКТИВНЫЙ ТРУД. Совместное созидание без потери индивидуальности. Вместе.",
+    slav: "СОБОРНОСТЬ. Твои ушедшие предки стоят за твоим правым и левым плечом." },
+  { symbolCap: "Й", symbolLow: "й", oldName: "Прекрасное, необычное, душевное, Благодушие, Вершина всех энергий, Неизведанное, но проявленное", name: "Ћєрвь (Гервь) ГХ", number: 14, font: "cyrillica",  numeric: "13 — ", body: "🟠 Жарье Тело",
+  encyclopedia: "Гервь — объединение разрозненного, поиск подобий и построение целостной картины мира.",
+    prav: "ОБЪЕДИНЕНИЕ. Объёмность ума, поиск подобий и связей во Вселенной. Видь целое.",
+    nav: "ЗАШОРЕННОСТЬ. Узкий догматичный взгляд, жёсткие рамки. Расширь горизонты.",
+    yav: "МАСШТАБИРОВАНИЕ. Сбор разрозненных частей опыта в рабочую систему. Собери.",
+    slav: "ЗАКОН ПОДОБИЯ. Что внутри, то и снаружи. Измени дух — изменится мир." },
+  { symbolCap: "К", symbolLow: "к", oldName: "Объединение человека со Вселенной, подобие, тождественность, Объёмность восприятия, понимания, Свод", name: "КАКО", number: 15, font: "Hirmucs", numeric: "20 — Двудесять", body: "🟡 Навье Тело",
+  encyclopedia: "Како — вопрос и ответ одновременно, закон подобия и гармонии человека с мирозданием.",
+    prav: "СВЯЗЬ. Нахождение гармонии человека с окружающим миром и силами. Настройся.",
+    nav: "ОГРАНИЧЕННОСТЬ. Неспособность выйти за пределы текущего понимания. Раздвинь рамки.",
+    yav: "СРАВНЕНИЕ. Построение системы через поиск общих законов. Ищи закономерности.",
+    slav: "ПРАВИЛО СИСТЕМЫ. Ситуация выстраивается по закону причинно-следственной матрицы." },
+  { symbolCap: "Л", symbolLow: "л", oldName: "Объединение мирно мыслящих, Проявляющие сознательность, Осознанность в действиях и поступках", name: "Людїє (Людие)", number: 16, font: "Hirmucs", numeric: "30 — Тридесять", body: "🟡 Навье Тело",
+  encyclopedia: "Людие — символ человечности, доброжелательства и осознанного общения.",
+    prav: "СОПРИКОСНОВЕНИЕ. Доброжелательность, мир осознанных людей. Открывайся.",
+    nav: "ТОЛПА. Потеря лица, безликий стадный инстинкт, внушаемость. Будь собой.",
+    yav: "ЧЕЛОВЕЧНОСТЬ. Умение оставаться Собой, помогая обществу. Сохраняй лицо.",
+    slav: "НАРОДНЫЙ ДУХ. Поддержка приходит от большой общности людей, верь в добро." },
+  { symbolCap: "М", symbolLow: "м", oldName: "Мысль, мышление, процесс осмысления(бытия), цепочка причинно-следственных связей", name: "Мыслитѣ (МЫСЛИТЕ)", number: 17, font: "Hirmucs", numeric: "40 — Сорокъ", body: "🟡 Навье Тело",
+  encyclopedia: "Мыслете — чистота замысла, ясность ума и способность структурировать хаос.",
+    prav: "ЯСНОСТЬ. Рождение чистого замысла, мудрость, крепкая логика. Мысли ясно.",
+    nav: "ЗАСТОЙ. Ментальный тупик, пустые думы без вектора. Найди фокус.",
+    yav: "ОСОЗНАННОСТЬ. Перевод хаотичных мыслей в чёткий план. Структурируй.",
+    slav: "ДУМА ПРЕДКОВ. Твоим разумом сейчас руководит вековая мудрость поколений." },
+  { symbolCap: "Н", symbolLow: "н", oldName: "То что было известно Нашим Предкам, То что существует при нас, наше, общее", name: "НАШЪ", number: 18, font: "Hirmucs", numeric: "50 — Пятьдесят", body: "🟡 Навье Тело",
+  encyclopedia: "Нашъ — родное пространство, защита предков и сила корней, удерживающая в пути.",
+    prav: "НАСЛЕДИЕ. Родное внутреннее пространство, защита предков. Ты дома.",
+    nav: "ЧУЖЕРОДНОСТЬ. Потеря связи с корнями, внутреннее одиночество. Вспомни корни.",
+    yav: "ПРИНЯТИЕ КОРНЕЙ. Осознание силы своей семьи и интеграция её опыта. Примери.",
+    slav: "РОДОВАЯ ЧЕСТЬ. Поступай так, чтобы предкам не было стыдно, тебя ведут." },
+  { symbolCap: "О", symbolLow: "о", oldName: "Нечто самостоятельное, обособленное, определённое, Некая целостная форма, структура", name: "ОНЪ", number: 19, font: "Pochaevsk", numeric: "70 — Семьдесят", body: "🟡 Навье Тело",
+  encyclopedia: "Онъ — Священный канон, высший порядок, проявление Творца в каждом мгновении.",
+    prav: "СВЯЩЕННЫЙ КАНОН. Высший порядок, проявление Создателя. Следуй закону.",
+    nav: "ЕРЕСЬ. Нарушение законов Вселенной, утеря ориентиров. Вернись на путь.",
+    yav: "ПРАВЕДНОСТЬ. Жизнь в полном ладу с космическими принципами. Будь честен.",
+    slav: "БОЖЕСТВЕННЫЙ ПОКРОВ. Ты под полной невидимой защитой от любого зла." },
+  { symbolCap: "П", symbolLow: "п", oldName: "Бездействие, Подвешенное состояние, Самообладание, Отдых перед новыми делами", name: "ПОКОИ (Покой)", number: 20, font: "Hirmucs", numeric: "80 — Осемьдесят", body: "🟡 Навье Тело",
+  encyclopedia: "Покои — точка внутреннего покоя, гармония, где собираются силы для нового рывка.",
+    prav: "ГАРМОНИЯ. Остановка бега, внутренний покой, сбор сил. Отдохни.",
+    nav: "ЛЕНОСТЬ. Апатия, стагнация, глухой застой, страх действий. Проснись.",
+    yav: "ТОЧКА БАЛАНСА. Спокойствие ума посреди самого яростного шторма. Держись.",
+    slav: "ТИШИНА СЛАВИ. Всё суетное уйдёт. Ответ придёт только в абсолютном покое." },
+  { symbolCap: "Р", symbolLow: "р", oldName: "Речь, изречение, течение, подача мысли через слово, Управление силой, её направленное применение", name: "Рѣци (Реци)", number: 21, font: "Hirmucs", numeric: "100 — Сотня", body: "🟡 Навье Тело",
+  encyclopedia: "Реци — сила правдивого слова, способная структурировать реальность и творить судьбу.",
+    prav: "РЕЧЕНЬЕ. Сила правдивого слова, структурирование реальности. Говори истину.",
+    nav: "КРИВДА. Ложь, манипуляция, пустословие, искажение фактов. Молчи, если лжёшь.",
+    yav: "МАНИФЕСТАЦИЯ. Смелое заявление миру о своих истинных намерениях. Объяви.",
+    slav: "ЗАГОВОР СИЛЫ. Твоё слово сейчас имеет силу молитвы, проси созидательное." },
+  { symbolCap: "С", symbolLow: "с", oldName: "Проявление, воплощение, выражение мысли, Уплотнение мысли в звук, материализация, Поток, Соединительная форма", name: "СЛОВО", number: 22, font: "Hirmucs", numeric: "200 — Двести", body: "🟢 Клубье Тело",
+  encyclopedia: "Слово — рождение идеи, момент, когда мысль обретает плотность и форму.",
+    prav: "РОЖДЕНИЕ ИДЕИ. Мысль обретает плотность и первую форму. Зачиняй.",
+    nav: "ИЛЛЮЗИЯ. Пустые обещания, слова на ветер, обман надежд. Будь искренен.",
+    yav: "РЕАЛИЗАЦИЯ. Точное воплощение задуманного в физический объект. Делай.",
+    slav: "ПРОРОЧЕСТВО. Будь внимателен к случайным фразам — это весть от Рода." },
+  { symbolCap: "Т", symbolLow: "т", oldName: "Утверждённое свыше указание, Твёрдость, Крепость, Надёжность, Твердь Земная и Небесная", name: "Твѣрдо (Твердо)", number: 23, font: "Hirmucs2", numeric: "300 — Три сотни", body: "🟢 Клубье Тело",
+  encyclopedia: "Твердо — незыблемость намерений, твёрдость духа и надёжность как щит.",
+    prav: "НАДЕЖНОСТЬ. Прочность намерений, незыблемая опора духа. Стой твёрдо.",
+    nav: "ЖЕСТОКОСТЬ. Гордыня, негибкость мышления, упрямство. Смягчись.",
+    yav: "ГИБКАЯ СТОЙКОСТЬ. Умение держать удар, сохраняя внутреннюю мягкость. Гнись, но не ломайся.",
+    slav: "ДУХОВНЫЙ ЩИТ. Твоя внутренняя правда — броня, которую ничто не пробьёт." },
+  { symbolCap: "У", symbolLow: "у", oldName: "Зов, послание, призыв, клич, Участие, стремление, Взаимодействие с чем или кем-либо, ", name: "УКЪ", number: 24, font: "Hirmucs2", numeric: " — ", body: "🟢 Клубье Тело",
+  encyclopedia: "Укъ — сближение душ, сострадание и умение находить точки соприкосновения.",
+    prav: "СБЛИЖЕНИЕ. Нахождение точек соприкосновения, сострадание. Открой сердце.",
+    nav: "РАЗДОРОЖЬЕ. Эгоизм, разобщённость, нежелание слушать. Услышь другого.",
+    yav: "КОНСОЛИДАЦИЯ. Объединение разных мнений в общую силу. Собери вокруг себя.",
+    slav: "ПРИТЯЖЕНИЕ РОДНЫХ. Твои духовные соратники и истинные друзья уже близко." },
+  { symbolCap: "У", symbolLow: "у", oldName: "Чувственность, чувствительность, чувствознание, Родовые устои, Наследие, Совет, Единство Силы и Знания", name: "Оɣкъ (ОУКЪ) Оу", number: 25, font: "Hirmucs", numeric: "400 — Четыре сотни", body: "🟢 Клубье Тело",
+  encyclopedia: "Оукъ — интуиция, тонкое чутьё сердца, слышание скрытого за гранью слов.",
+    prav: "ИНТУИЦИЯ. Слышание сердцем, глубинная вера, тонкое чутье. Доверься.",
+    nav: "ЧЕРСТВОСТЬ. Духовная сухость, недоверие к себе и знакам. Раскройся.",
+    yav: "ЯСНОВИДЕНИЕ. Полный лад между разумом и сердцем. Слушай оба.",
+    slav: "ОТКРОВЕНИЕ ДУШИ. Предки открывают твоё внутреннее зрение, верь первому чувству." },
+  { symbolCap: "Ф", symbolLow: "ф", oldName: "Благородство, гордость, Уверенность, достоинство, Зрелость Души, Величие", name: "Фѣртъ (ФЕРТЪ)", number: 26, font: "Hirmucs", numeric: "500 — Пятьсот", body: "🟢 Клубье Тело",
+  encyclopedia: "Фертъ — благородство духа, защита чести и внутреннее право выше земных страстей.",
+    prav: "БЛАГОРОДСТВО. Защита чести, благородные поступки, внутреннее право. Будь выше.",
+    nav: "ТЩЕСЛАВИЕ. Гордыня, хвастовство, надменное отношение. Смирить гордыню.",
+    yav: "ВЕЛИЧИЕ ДУХА. Спокойное достоинство без потребности доказывать. Просто будь.",
+    slav: "СЛАВА РОДУ. Поступок, который ты совершишь, укрепит силу всего твоего древа." },
+  { symbolCap: "Х", symbolLow: "х", oldName: "Равновесие Вселенских структур, Вселенская, небесная гармония", name: "Хѣръ (Херъ) ХИЕРЪ (Хиер)", number: 27, font: "Hirmucs", numeric: "600 — Шестьсот", body: "🟢 Клубье Тело",
+  encyclopedia: "Херъ — перекрёсток миров, точка лада и гармоничного завершения циклов.",
+    prav: "ЛАД ВСЕЛЕННОЙ. Пересечение путей, гармоничное завершение. Всё сходится.",
+    nav: "ПЕРЕЧЁРКИВАНИЕ. Разрыв связей, крах планов, хаос. Пережди бурю.",
+    yav: "ПЕРЕКРЁСТОК. Осознание кризиса как точки выбора нового пути. Выбирай.",
+    slav: "ПЕРЕСЕЧЕНИЕ МИРОВ. Посмотри на ситуацию с высоты птичьего полёта, всё сбалансировано." },
+  { symbolCap: "Ѿ", symbolLow: "ѿ", oldName: "До сей поры, Предел, Окончательный результат, рубеж, отрезок, От истока, от начала", name: "Отъ (ОТ)", number: 28, numeric: "800 — Восемьсот", body: "🟢 Клубье Тело",
+  encyclopedia: "Отъ — вершина достижения, финальная точка, куда устремляется всякий путь.",
+    prav: "ДОСТИЖЕНИЕ. Вершина, финальная победная точка, цель. Ты на вершине.",
+    nav: "БЕСЦЕЛЬНОСТЬ. Блуждание по кругу, распыление сил на мелочи. Сфокусируйся.",
+    yav: "УСТРЕМЛЕНИЕ. Чёткая фокусировка на главном, движение к цели. Вперёд.",
+    slav: "ВЫСШИЙ ВЕКТОР. Твоя цель одобрена на духовном плане, двигайся без сомнений." },
+  { symbolCap: "Ц", symbolLow: "ц", oldName: "Целостность, цель, цельность, целое, Устремление, Постановка и достижение цели", name: "ЦИ", number: 29, font: "TriodPostnaja", numeric: "900 — Девятьсот", body: "🔵 Колобье Тело",
+  encyclopedia: "Ци — живой источник, ключевая энергия, пробивающаяся сквозь любые преграды.",
+    prav: "ИСТОЧНИК. Ключевая жизненная энергия, прорывные идеи, фонтан сил. Черпай.",
+    nav: "ЗАГРЯЗНЕНИЕ. Осквернение помыслов, упадок внутренних сил. Очистись.",
+    yav: "ЦЕЛЕБНОСТЬ. Очищение пространства от накопленного негатива. Вычисти.",
+    slav: "ЧИСТЫЙ РОДНИК. Дух предков омывает твой путь, сбрасывай всё старое." },
+  { symbolCap: "Ч", symbolLow: "ч", oldName: "Красный красивый, гранёный, червлёное, Природная красота, Грань, аспект, рубеж, черта, край, граница, предел", name: "Чѣрвль (ЧЕРВАЛЬ)", number: 30, font: "Hirmucs", numeric: "90 - Девятьдесят", body: "🔵 Колобье Тело",
+  encyclopedia: "Червль — красота и чистота рубежей, защита изначальной природной чести.",
+    prav: "ЧИСТОТА. Защита рубежей, изначальная природная красота и честь. Береги.",
+    nav: "УЯЗВИМОСТЬ. Нарушение личных границ, осквернение, слабость. Укрепи стены.",
+    yav: "ОБЕРЕЖЕСТВО. Уверенная и мягкая защита своего пространства. Стой на страже.",
+    slav: "РУБЕЖ СЛАВИ. Предки выставили невидимый заслон вокруг тебя, ты вне зоны досягаемости." },
+  { symbolCap: "Ш", symbolLow: "ш", oldName: "Тишина, простор, ширь, объёмное распространение, размах", name: "ША", number: 31, font: "Hirmucs2", numeric: "14", body: "🔵 Колобье Тело",
+  encyclopedia: "Ша — тишина и широта, выход за рамки земного и прикосновение к вечному.",
+    prav: "ТИШИНА. Широта скрытых возможностей, выход за земные рамки. Раскройся.",
+    nav: "ТЕСНОТА. Ограничения ума, рамки социума, невозможность вздохнуть. Вырвись.",
+    yav: "ПРОСТРАНСТВО. Расширение горизонтов, создание места для нового. Расти.",
+    slav: "ВЕЛИКИЙ ПОКОЙ. Раствори все страхи в изначальной пустоте, оттуда родится сила." },
+  { symbolCap: "Щ", symbolLow: "щ", oldName: "Плотность, разнообразие, Потенциальность, Определённость", name: "ЩТА (Шт)", number: 32, font: "Hirmucs", numeric: "15", body: "🔵 Колобье Тело",
+  encyclopedia: "Щта — прочная почва, нерушимый фундамент, на котором строится судьба.",
+    prav: "ПРОЧНАЯ ПОЧВА. Надёжная основа, защита структуры, уверенность. Ты на твёрдом.",
+    nav: "ЗЫБКОСТЬ. Размытые ориентиры, потеря опор, хаос. Найди точку опоры.",
+    yav: "УКОРЕНЕНИЕ. Создание стабильной базы для долгосрочного развития. Закладывай фундамент.",
+    slav: "КРЕПОСТЬ РОДА. Твоя структура поддерживается нерушимой вековой силой поколений." },
+  { symbolCap: "Ъ", symbolLow: "ъ", oldName: "Твёрдость, сотворение в процессе действия, действо, Происходящие здесь и сейчас события", name: "Єръ", number: 33, font: "Hirmucs2", numeric: "—", body: "🔵 Колобье Тело",
+  encyclopedia: "Еръ — творческое созидание, действие наяву, кузня, где куётся будущее.",
+    prav: "СОЗИДАНИЕ. Творческий процесс прямо сейчас, действие наяву. Твори.",
+    nav: "НЕДОДЕЛАННОСТЬ. Брошенные дела, лень, отсутствие воли дойти до конца. Доведи.",
+    yav: "ТРУД. Концентрация сил на текущем моменте, завершение начатого. Работай.",
+    slav: "КУЗНЯ ДУХА. Каждый твой шаг сейчас переписывает судьбу в лучшую сторону." },
+  { symbolCap: "Ы", symbolLow: "ы", oldName: "Единство соединения множеств, их неразрывность, Сотворение в Единстве с Небѣсным", name: "Єры", number: 34, font: "Hirmucs2", numeric: "1 млрд", body: "🔵 Колобье Тело",
+  encyclopedia: "Еры — единство мира, крепкая связь разных стихий в одном целом.",
+    prav: "ЕДИНСТВО. Сила союза, крепкая связь разных элементов. Соединяй.",
+    nav: "РАЗДРОБЛЕННОСТЬ. Споры, внутренние противоречия, раскол. Помири.",
+    yav: "СООБЩЕСТВО. Нахождение гармонии в разнообразии мнений. Объединяй.",
+    slav: "КРУГ СЛАВЛЕНИЯ. Объединись с единомышленниками духовно, вместе вы непобедимы." },
+  { symbolCap: "Ь", symbolLow: "ь", oldName: "Существующая жизнь, существующий объект, Богом данная, законченное творение", name: "Єрь", number: 35, font: "Hirmucs2", numeric: "—", body: "🔵 Колобье Тело",
+  encyclopedia: "Ерь — скрытый потенциал, мягкое прорастание нового из глубин бытия.",
+    prav: "ИСТОК ЖИЗНИ. Природный скрытый потенциал, мягкое прорастание. Расти.",
+    nav: "СТАГНАЦИЯ. Закопанный талант, упущенный шанс, угасание сил. Пробуди.",
+    yav: "РАСКРЫТИЕ. Создание идеальных условий для проявления способностей. Покажи себя.",
+    slav: "ПРОБУЖДЕНИЕ. Родовая искра вспыхивает в тебе, давая силы для рывка." },
+  { symbolCap: "Ѣ", symbolLow: "ѣ", oldName: "Божественная связь, сила; взаимодействие небесных и земных структур", name: "ѦТЬ (Ять) ИЕ", number: 36, numeric: "—", body: "🧿 Дивье Тело",
+  encyclopedia: "Ять — божественный луч, соединяющий земное и небесное в одной точке.",
+    prav: "БОЖЕСТВЕННЫЙ ЛУЧ. Полная гармония земного и небесного. Слейся.",
+    nav: "ПРИЗЕМЛЁННОСТЬ. Жёсткий материализм, полное отрицание духовного. Поднимись.",
+    yav: "ПРАКТИЧЕСКАЯ МУДРОСТЬ. Применение высших законов в обычных делах. Живи мудро.",
+    slav: "ДУХОВНЫЙ МОСТ. Предки выстраивают для тебя самый безопасный и верный путь." },
+  { symbolCap: "Ю", symbolLow: "ю", oldName: "Движение вне взаимосвязи с основным Потоком, Соприкосновение, взаимосвязь по касательной, прикосновение", name: "Юнъ", number: 37, font: "Hirmucs", numeric: "1620", body: "🧿 Дивье Тело",
+  encyclopedia: "Юнъ — свобода духа, выход за пределы, новаторство и юная сила.",
+    prav: "СВОБОДА. Движение вне потока, выход за рамки, новаторство. Лети.",
+    nav: "ИЗГОЙСТВО. Потеря связи с родом, хаотичные метания без прикаяния. Найди дом.",
+    yav: "НЕЗАВИСИМОСТЬ. Умение идти своим путём, уважая традиции. Будь свободен.",
+    slav: "СВОБОДНЫЙ ДУХ. Ситуация требует нестандартного решения через полное доверие Роду." },
+
+  { symbolCap: "Я", symbolLow: "ꙗ", oldName: "Однородная, самодостаточная система, Изначальная жизненная сила", name: "Ҩрь АРЬ ЙА Я (йас)", number: 38, font: "Hirmucs", numeric: "—", body: "🧿 Дивье Тело",
+  encyclopedia: "АРЬ — лад с природой, нахождение своего истинного места в пространстве Рода.",
+    prav: "ЛАД С ПРИРОДОЙ. Нахождение своего истинного места в пространстве. Прими.",
+    nav: "ОТЧУЖДЕНИЕ. Внутреннее сопротивление миру, чужеродная среда. Адаптируйся.",
+    yav: "ГАРМОНИЗАЦИЯ. Превращение любого пространства вокруг в уютный дом. Создавай.",
+    slav: "РОДНЫЕ ИСТОКИ. Наберись сил у природы, духи деревьев и воды хранят тебя." },
+  { symbolCap: "Ѥ", symbolLow: "ѥ", oldName: "Первый контакт с системой знаний, Форма познания, Прикосновение к целому для получения начальной (поверхностной) информации о нём", name: "ѤДО", number: 39, numeric: "—", body: "🧿 Дивье Тело",
+  encyclopedia: "Едо — откровение, получение ключевой информации из источника вечной памяти.",
+    prav: "ОТКРОВЕНИЕ. Получение ключевой информации, прикосновение к истокам. Узнай.",
+    nav: "ЗАБВЕНИЕ. Иллюзорные знания, неспособность услышать мудрость. Вспомни.",
+    yav: "ОЗАРЕНИЕ. Мгновенное применение тайной информации на практике. Используй.",
+    slav: "ВЕЧНЫЙ СВИТОК. Ответ уже записан в твоей генетической памяти, прислушайся." },
+  { symbolCap: "Ѡ", symbolLow: "ω", oldName: "Сияние, созидание, Откровение,  просветление, озарение, прорыв", name: "Омъ (ОМ) омега", font: "TriodPostnaja", number: 40, numeric: "—", body: "🧿 Дивье Тело",
+  encyclopedia: "Омъ — вселенский звук, просветление и слияние души с вечным ритмом бытия.",
+    prav: "ПРОСВЕТЛЕНИЕ. Высшее духовное сияние, обретение внутреннего покоя. Сияй.",
+    nav: "ОМРАЧЕНИЕ. Духовная слепота, гордыня интеллекта, невежество. Просветись.",
+    yav: "БЛАГОСТЬ. Излучение спокойной духовной силы в повседневную жизнь. Свети.",
+    slav: "СВЯЩЕННЫЙ ЛАД. Душа сливается со Вселенной, все тревоги растворяются в вечности." },
+  { symbolCap: "Є", symbolLow: "ѧ", oldName: "Он, образная структура, образность, Образ, как результат развития мысли, Союз, соединение, связка мыслей", name: "Єнъ", font: "Hirmucs", number: 41, numeric: "—", body: "🧿 Дивье Тело",
+  encyclopedia: "Енъ — чтение знаков Вселенной, способность видеть подсказки в каждом мгновении.",
+    prav: "ЧТЕНИЕ ЗНАКОВ. Образное глубинное восприятие подсказок Вселенной. Видь.",
+    nav: "БУКВАЛЬНОСТЬ. Поверхностный сухой взгляд, непонимание скрытых смыслов. Загляни глубже.",
+    yav: "ПОНИМАНИЕ. Умение видеть скрытые причинно-следственные связи. Связывай.",
+    slav: "ГЛАС ПРЕДКОВ. Обрати внимание на сны — через них Род транслирует точный ответ." },
+  { symbolCap: "Ѫ", symbolLow: "ѫ", oldName: "Родовые знания, родовая память, завет Предков, Распространение Родовых знаний", name: "ОДЬ", number: 42, numeric: "—", body: "🧿 Дивье Тело",
+  encyclopedia: "Одь — наследование, правильная передача родовых ценностей через поколения.",
+    prav: "НАСЛЕДОВАНИЕ. Богатство души, правильная передача родовых ценностей. Храни.",
+    nav: "РАСТРАТА. Утеря духовного капитала, пустая жизнь ради сиюминутного. Собери.",
+    yav: "ПРЕЕМСТВЕННОСТЬ. Преумножение знаний предков и передача их потомкам. Передай.",
+    slav: "РОДОВОЙ КЛАД. Ситуация развернёт перед тобой скрытые таланты твоей крови." },
+  { symbolCap: "Ѩ", symbolLow: "ѩ", oldName: "Познания (указующая форма), познание нового, постижение неизведанного, Расширение уровня осознанности, осознание своего предназначения", name: "ЁТА", number: 43, numeric: "—", body: "🔮 Светье Тело",
+  encyclopedia: "Ёта — внезапное озарение сути, мгновенное постижение тайны ситуации.",
+    prav: "ОЗАРЕНИЕ СУТИ. Внезапное раскрытие главной тайны ситуации. Пойми.",
+    nav: "ЗАБЛУЖДЕНИЕ. Иллюзия контроля, ложные поспешные выводы, туман. Прозрей.",
+    yav: "ЯСНОСТЬ. Полное очищение ума от иллюзий и видение вещей как они есть. Видь.",
+    slav: "ВСПЫШКА СЛАВИ. Истина откроется тебе без логики, просто доверься первому импульсу." },
+  { symbolCap: "Ѭ", symbolLow: "ѭ", oldName: "Сортировка вариантов, наведение порядка (с выбрасыванием ненужного), Отречение, Непринятие чего-либо", name: "ОТА", number: 44, numeric: "—", body: "🔮 Светье Тело",
+  encyclopedia: "Ота — новый опыт, готовность принять неизвестное и трансформироваться.",
+    prav: "НОВЫЙ ОПЫТ. Готовность безоценочно принять новые духовные законы. Откройся.",
+    nav: "ОТВЕРЖЕНИЕ. Страх перед неизвестным, жёсткие рамки старых догм. Осмелься.",
+    yav: "ТРАНСФОРМАЦИЯ. Плавный переход сознания на совершенно новый уровень. Меняйся.",
+    slav: "ВЫСШИЙ ПОТОК. Колесо твоей судьбы делает новый оборот под присмотром богов." },
+  { symbolCap: "Ѯ", symbolLow: "ѯ", oldName: "Дух (Дɤхъ), Проявление Духа - воля, отвага, решительность, доблесть, крепость, сила внушения", name: "КСИ", number: 45, numeric: "60 — Шестьдесят", body: "🔮 Светье Тело",
+  encyclopedia: "Кси — духовная воля, прямое покровительство высших сил и непоколебимость.",
+    prav: "ДУХОВНАЯ ВОЛЯ. Прямое божественное покровительство, сила духа. Верь.",
+    nav: "БЕЗДУХОВНОСТЬ. Упадок душевных сил, полное погружение в материальный плен. Проснись.",
+    yav: "ОДУХОТВОРЕНИЕ. Наполнение каждого земного действия высшим смыслом. Живи осознанно.",
+    slav: "СВЯТОЙ ЩИТ. Твой дух силен как никогда, никакие навьи козни не смогут тебе навредить." },
+  { symbolCap: "J", symbolLow: "j", oldName: "Дɤша, и всё, что к ней относится", name: "ПСИ", number: 46, font: "izhitsa", numeric: "700 — Семьсот", body: "🔮 Светье Тело",
+  encyclopedia: "Пси — душевный лад, чистая эмпатия и исцеляющая сила открытого сердца.",
+    prav: "ДУШЕВНЫЙ ЛАД. Чистая эмпатия, открытое сердце, исцеление чувств. Люби.",
+    nav: "ЧЕРСТВОСТЬ. Душевный холод, эгоизм, закрытость от мира, обиды. Прости.",
+    yav: "ОТКРЫТОСТЬ. Способность любить и принимать мир без страха быть раненым. Доверься.",
+    slav: "СЛИЯНИЕ ДУШ. Твоя душевная энергия сонаправлена с ритмами всего твоего Рода." },
+  { symbolCap: "Ф", symbolLow: "ф", oldName: "Единство духа, природа, слияние, взаимосвязь, Свитие энергопотоков", name: "ѲИТА (Фита)", number: 47, font: "Hirmucs2", numeric: "9 — Девять", body: "🔮 Светье Тело",
+  encyclopedia: "Фита — единство с природой, тонкое чутьё.",
+    prav: "ЕДИНСТВО. Тонкое природное чутье, экологичность мыслей и планов. Чувствуй.",
+    nav: "РАЗРУШЕНИЕ. Действия наперекор природе, суета, внутренний дисбаланс. Остановись.",
+    yav: "БИОСФЕРА. Жизнь в полном и неразрывном ритме с циклами Вселенной. Течи.",
+    slav: "ГАРМОНИЯ ПРАРОДИТЕЛЕЙ. Земля и Небо благословляют тебя, лад наступает во всех сферах." },
+  { symbolCap: "Ѵ", symbolLow: "ѵ", oldName: "Гармония, гармоничное состояние, Движение в радости, Гармоничное распространение, Продление Рода", name: "ИЖИЦА", number: 48, font: "Hirmucs", numeric: "—", body: "🔮 Светье Тело",
+  encyclopedia: "Ижица — высшая безусловная любовь, милосердие и исцеление через прощение.",
+    prav: "МИЛОСЕРДИЕ. Состояние высшей безусловной любви, благость, исцеление. Отдай.",
+    nav: "ОСУЖДЕНИЕ. Жестокость ума, злоба, нежелание прощать ошибки. Прости.",
+    yav: "ПРОЩЕНИЕ. Полное освобождение души от груза прошлых обид и кармы. Отпусти.",
+    slav: "ВЕЛИКАЯ БЛАГОДАТЬ. Ситуация разрешается через абсолютную любовь, карма обнулена." },
+  { symbolCap: "Й", symbolLow: "æ", oldName: "Время, мера времени, Время как стихия, Зеркальность, Краткость, кратковременность, Мгновение, миг", name: "ИЖА (Мера Времени)", number: 49, font: "Hirmucs", numeric: "—", body: "🔮 Светье Тело",
+  encyclopedia: "Ижа — космическая мера, точка абсолютного лада, где сходятся все миры.",
+    prav: "КОСМИЧЕСКИЙ ЛАД. Полная гармония со Вселенной, высшая мудрость. Постигай.",
+    nav: "ХАОС ЖИЗНИ. Нарушение вселенского баланса, духовный кризис. Соберись.",
+    yav: "АБСОЛЮТ. Точка покоя, где Дар и Тень сливаются в чистую мудрость. Будь.",
+    slav: "КОЛОВРАТ ВСЕЛЕННОЙ. Круг замкнулся, ты вышел на высшую ступень духовной эволюции." }
+];
+
+let isFlipped = false;
+let gridVisible = false;
+let spreadMode = false;
+let btnTimer = null;
+let entropyPool = 0; // Бассейн энтропии: собирает хаос от твоих движений по экрану
+
+// === КОСМИЧЕСКИЙ ЖРЕБИЙ (работает на всех устройствах) ===
+function cosmicRandom() {
+  // 1. Железный хаос (процессор, тепло)
+  let cryptoVal = 0;
+  if (window.crypto && window.crypto.getRandomValues) {
+    cryptoVal = window.crypto.getRandomValues(new Uint32Array(1))[0];
+  } else {
+    cryptoVal = Math.floor(Math.random() * 4294967295);
+  }
+  // 2. Космическое время (момент клика)
+  const timeVal = Date.now();
+  // 3. Микро-время страницы
+  const perfVal = (window.performance && performance.now) ? performance.now() * 1000 : 0;
+  // 4. ЭНЕРГИЯ ТВОИХ ДВИЖЕНИЙ — то, чего не хватало!
+  const mixed = (cryptoVal + timeVal + perfVal + entropyPool) % 1000000007;
+  // После броска меняем пул, чтобы следующий ответ шёл из новой энергии
+  entropyPool = (entropyPool + cryptoVal + timeVal) % 1000000007;
+  return (mixed % 1000) / 1000;
+}
+
+
+const aspects = [
+  { key: 'prav', name: 'ДАР', badge: 'Светлое Положение (Правь)', class: 'prav', rotate: 'rotate(0deg)' },
+  { key: 'nav', name: 'ТЕНЬ', badge: 'Теневое Положение (Навь)', class: 'nav', rotate: 'rotate(180deg)' },
+  { key: 'yav', name: 'СОЮЗ', badge: 'Состояние Лада (Явь)', class: 'yav', rotate: 'rotate(0deg)' },
+  { key: 'slav', name: 'ДУХ', badge: 'Мир Предков (Славь)', class: 'slav', rotate: 'scaleX(-1)' }
+];
+
+const bodyClasses = {
+  '🔴 Явье Тело (Плоть)': 'glow-body-yav',
+  '🟠 Жарье Тело': 'glow-body-zhar',
+  '🟡 Навье Тело': 'glow-body-nav',
+  '🟢 Клубье Тело': 'glow-body-klub',
+  '🔵 Колобье Тело': 'glow-body-kolob',
+  '🧿 Дивье Тело': 'glow-body-div',
+  '🔮 Светье Тело': 'glow-body-svet'
+};
+
+function getRandomBukvitsa() {
+  return bukvitsy[Math.floor(Math.random() * bukvitsy.length)];
+}
+
+function getRandomAspect() {
+  return aspects[Math.floor(Math.random() * aspects.length)];
+}
+
+function fillCard(b, aspect, suffix) {
+  suffix = suffix || '';
+  const badgeEl = document.getElementById('aspectBadge' + suffix);
+  const nameEl = document.getElementById('aspectName' + suffix);
+  const symCapEl = document.getElementById('cardSymbolCap' + suffix);
+  const symLowEl = document.getElementById('cardSymbolLow' + suffix);
+  const bNameEl = document.getElementById('cardBukvitsaName' + suffix);
+  const oldNameEl = document.getElementById('cardOldName' + suffix);
+  const numEl = document.getElementById('cardNumeric' + suffix);
+  const bodyEl = document.getElementById('cardBody' + suffix);
+  const predEl = document.getElementById('cardPrediction' + suffix);
+  const backEl = suffix ? document.getElementById('back' + suffix) : document.querySelector('#cardBack');
+
+  if (badgeEl) {
+    badgeEl.textContent = aspect.badge;
+    badgeEl.className = 'aspect-badge ' + aspect.class;
+  }
+  if (nameEl) {
+    nameEl.textContent = aspect.name;
+    nameEl.className = 'aspect-name ' + aspect.class;
+  }
+      if (symCapEl) {
+    symCapEl.textContent = b.symbolCap;
+    symCapEl.style.transform = aspect.rotate;
+    if (b.font) {
+      symCapEl.style.fontFamily = "'" + b.font + "', 'Noto Serif', serif";
+    } else {
+      symCapEl.style.fontFamily = "'Noto Serif', serif";
+    }
+  }
+  if (symLowEl) {
+    symLowEl.textContent = b.symbolLow;
+    symLowEl.style.transform = aspect.rotate;
+    if (b.font) {
+      symLowEl.style.fontFamily = "'" + b.font + "', 'Noto Serif', serif";
+    } else {
+      symLowEl.style.fontFamily = "'Noto Serif', serif";
+    }
+  }
+  if (bNameEl) bNameEl.textContent = b.name;
+
+  if (oldNameEl) oldNameEl.textContent = b.oldName;
+  if (numEl) numEl.textContent = '◈ ' + b.numeric + ' ◈ | № ' + b.number + ' из 49';
+  if (bodyEl) bodyEl.textContent = b.body || '◈ Тело неизвестно ◈';
+  if (predEl) predEl.textContent = b[aspect.key];
+
+
+
+  if (backEl) {
+    backEl.classList.remove('glow-prav', 'glow-nav', 'glow-yav', 'glow-slav',
+      'glow-body-yav', 'glow-body-zhar', 'glow-body-nav', 'glow-body-klub',
+      'glow-body-kolob', 'glow-body-div', 'glow-body-svet');
+    backEl.classList.add('glow-' + aspect.class);
+    const bodyGlow = bodyClasses[b.body];
+    if (bodyGlow) backEl.classList.add(bodyGlow);
+  }
+  
+  if (!suffix) {
+    window.lastOracleCard = {
+      name: b.name,
+      oldName: b.oldName,
+      body: b.body,
+      numeric: b.numeric,
+      aspect: aspect.name,
+      aspectBadge: aspect.badge,
+      prediction: b[aspect.key]
+    };
+  }
+}
+
+function drawBukvitsa() {
+  const btn = document.getElementById('drawBtn');
+  if (btn.disabled) return;
+  currentYesNo = null;
+  const aiBtn = document.getElementById('aiChatBtn');
+  if (aiBtn) aiBtn.style.display = 'none';
+
+  if (spreadMode) {
+    toggleSpreadMode();
+    setTimeout(() => drawBukvitsa(), 300);
+    return;
+  }
+  
+  btn.disabled = true;
+  const originalText = btn.textContent;
+  let seconds = 5;
+  btn.textContent = '◈ ' + seconds + ' ◈';
+  
+  btnTimer = setInterval(() => {
+    seconds--;
+    if (seconds > 0) {
+      btn.textContent = '◈ ' + seconds + ' ◈';
+    } else {
+      clearInterval(btnTimer);
+      btnTimer = null;
+      btn.textContent = originalText;
+      btn.disabled = false;
+    }
+  }, 1000);
+  
+  const card = document.getElementById('tarotCard');
+  
+  // Сначала всегда сбрасываем в рубашку, потом заполняем, потом переворачиваем
+  function doTheFlip() {
+    const b = getRandomBukvitsa();
+    const aspect = getRandomAspect();
+    fillCard(b, aspect, '');
+    requestAnimationFrame(() => {
+      playBellSound();
+      card.classList.add('flipped');
+      isFlipped = true;
+    });
+  }
+  
+  if (card.classList.contains('flipped')) {
+    // 1. Возврат в рубашку (видно анимацию)
+    card.classList.remove('flipped');
+    // 2. Ждём ровно 800 мс (как в CSS transition), пока карта ляжет рубашкой
+    setTimeout(() => {
+      document.getElementById('cardSymbolCap').style.transform = 'rotate(0deg)';
+      document.getElementById('cardSymbolLow').style.transform = 'rotate(0deg)';
+      isFlipped = false;
+      // 3. Меняем данные и переворачиваем
+      doTheFlip();
+    }, 800);
+  } else {
+    // Уже в рубашке — сразу заполняем и переворачиваем
+    doTheFlip();
+  }
+}
+function flipCard() {
+  if (spreadMode) return;
+  if (!isFlipped) {
+    playBellSound();
+    drawBukvitsa();
+  } else {
+    document.getElementById('tarotCard').classList.remove('flipped');
+    setTimeout(() => {
+      document.getElementById('cardSymbolCap').style.transform = 'rotate(0deg)';
+      document.getElementById('cardSymbolLow').style.transform = 'rotate(0deg)';
+      isFlipped = false;
+      currentYesNo = null;
+      const aiBtn = document.getElementById('aiChatBtn');
+      if (aiBtn) aiBtn.style.display = 'none';
+    }, 400);
+  }
+}
+
+// === РАСКЛАД 3 КАРТЫ ===
+function toggleSpreadMode() {
+  if (btnTimer) {
+    clearInterval(btnTimer);
+    btnTimer = null;
+  }
+  document.getElementById('drawBtn').disabled = false;
+  spreadMode = !spreadMode;
+  const singleMode = document.getElementById('singleMode');
+  const spreadModeEl = document.getElementById('spreadMode');
+  const spreadBtn = document.getElementById('spreadBtn');
+  const drawBtn = document.getElementById('drawBtn');
+  const hintText = document.getElementById('hintText');
+
+  if (spreadMode) {
+    singleMode.style.display = 'none';
+    spreadModeEl.classList.add('active');
+    spreadBtn.classList.add('active');
+    spreadBtn.textContent = '◈ 1 ЗНАК ◈';
+    drawBtn.textContent = '◈ РАСКЛАД 3 ЗНАКА ◈';
+    drawBtn.setAttribute('onclick', 'drawThreeCards()');
+    hintText.textContent = 'Сосредоточься на вопросе и нажми РАСКЛАД — карты откроются одна за другой';
+
+  } else {
+    singleMode.style.display = 'block';
+    spreadModeEl.classList.remove('active');
+    spreadBtn.classList.remove('active');
+    spreadBtn.textContent = '◈ РАСКЛАД 3 КАРТЫ ◈';
+    drawBtn.textContent = '◈ ПОЛУЧИТЬ ЗНАК ◈';
+    drawBtn.setAttribute('onclick', 'drawBukvitsa()');
+    hintText.textContent = 'Сосредоточься на вопросе и нажми кнопку';
+  }
+}
+
+function drawThreeCards() {
+  const btn = document.getElementById('drawBtn');
+  if (!spreadMode || btn.disabled) return;
+  btn.disabled = true;
+  const originalText = btn.textContent;
+  let seconds = 6;
+  btn.textContent = '◈ ' + seconds + ' ◈';
+  
+  btnTimer = setInterval(() => {
+    seconds--;
+    if (seconds > 0) {
+      btn.textContent = '◈ ' + seconds + ' ◈';
+    } else {
+      clearInterval(btnTimer);
+      btnTimer = null;
+      btn.textContent = originalText;
+      btn.disabled = false;
+    }
+  }, 1000);
+  
+  playBellSound();
+
+  for (let pos = 1; pos <= 3; pos++) {
+    document.getElementById('card' + pos).classList.remove('flipped');
+  }
+
+  for (let pos = 1; pos <= 3; pos++) {
+    setTimeout(() => {
+      const b = getRandomBukvitsa();
+      const aspect = getRandomAspect();
+      fillCard(b, aspect, pos);
+      document.getElementById('card' + pos).classList.add('flipped');
+      playBellSound();
+    }, pos * 700);
+  }
+}
+
+function renderGrid() {
+  const grid = document.getElementById('bukvitsaGrid');
+  grid.innerHTML = '';
+
+  const bodyClassesGrid = {
+    '🔴 Явье Тело (Плоть)': 'body-yav',
+    '🟠 Жарье Тело': 'body-zhar',
+    '🟡 Навье Тело': 'body-nav',
+    '🟢 Клубье Тело': 'body-klub',
+    '🔵 Колобье Тело': 'body-kolob',
+    '🧿 Дивье Тело': 'body-div',
+    '🔮 Светье Тело': 'body-svet'
+  };
+
+  const bodyNames = {
+    '🔴 Явье Тело (Плоть)': '🔴 ЯВЬЕ ТЕЛО',
+    '🟠 Жарье Тело': '🟠 ЖАРЬЕ ТЕЛО',
+    '🟡 Навье Тело': '🟡 НАВЬЕ ТЕЛО',
+    '🟢 Клубье Тело': '🟢 КЛУБЬЕ ТЕЛО',
+    '🔵 Колобье Тело': '🔵 КОЛОБЬЕ ТЕЛО',
+    '🧿 Дивье Тело': '🧿 ДИВЬЕ ТЕЛО',
+    '🔮 Светье Тело': '🔮 СВЕТЬЕ ТЕЛО'
+  };
+
+  let currentBody = '';
+
+  bukvitsy.forEach((b, idx) => {
+    if (b.body !== currentBody) {
+      currentBody = b.body;
+      const divider = document.createElement('div');
+      divider.className = 'grid-divider ' + (bodyClassesGrid[b.body] || '');
+      divider.style.gridColumn = '1 / -1';
+      divider.innerHTML = '<span>' + bodyNames[b.body] + '</span>';
+      grid.appendChild(divider);
+    }
+
+    const cell = document.createElement('div');
+    const bodyClass = bodyClassesGrid[b.body] || '';
+    cell.className = 'grid-cell ' + bodyClass;
+
+    const cellFont = b.font ? "'" + b.font + "', 'Noto Serif', serif" : "'Noto Serif', serif";
+
+    cell.innerHTML = '<div class="cell-symbol" style="font-family: ' + cellFont + ';">' + b.symbolCap + '</div>' +
+                     '<div class="cell-symbol-sm" style="font-family: ' + cellFont + ';">' + b.symbolLow + '</div>' +
+                     '<div class="cell-number">' + b.number + '</div>';
+    cell.onclick = () => showDetail(idx);
+    grid.appendChild(cell);
+  });
+}
+
+
+function toggleGrid() {
+  const gridSection = document.getElementById('gridSection');
+  const toggleBtn = document.getElementById('toggleBtn');
+  gridVisible = !gridVisible;
+  if (gridVisible) {
+    gridSection.classList.add('active');
+    toggleBtn.textContent = '🔮 СКРЫТЬ';
+    renderGrid();
+  } else {
+    gridSection.classList.remove('active');
+    toggleBtn.textContent = '📜 СЕТКА';
+  }
+}
+// === ПОПАП ===
+function showDetail(idx) {
+  const b = bukvitsy[idx];
+  const detailFont = b.font ? "'" + b.font + "', 'Noto Serif', serif" : "'Noto Serif', serif";
+  const bodyClasses = {
+    '🔴 Явье Тело (Плоть)': 'glow-body-yav',
+    '🟠 Жарье Тело': 'glow-body-zhar',
+    '🟡 Навье Тело': 'glow-body-nav',
+    '🟢 Клубье Тело': 'glow-body-klub',
+    '🔵 Колобье Тело': 'glow-body-kolob',
+    '🧿 Дивье Тело': 'glow-body-div',
+    '🔮 Светье Тело': 'glow-body-svet'
+  };
+  
+  const popup = document.getElementById('detailPopup');
+  popup.classList.remove('glow-body-yav', 'glow-body-zhar', 'glow-body-nav', 'glow-body-klub', 'glow-body-kolob', 'glow-body-div', 'glow-body-svet');
+  const bodyGlowClass = bodyClasses[b.body];
+  if (bodyGlowClass) {
+    popup.classList.add(bodyGlowClass);
+  }
+  const detailCap = document.getElementById('detailSymbolCap');
+  const detailLow = document.getElementById('detailSymbolLow');
+  if (detailCap) {
+    detailCap.textContent = b.symbolCap;
+    if (b.font) {
+      detailCap.style.fontFamily = "'" + b.font + "', 'Noto Serif', serif";
+    } else {
+      detailCap.style.fontFamily = "'Noto Serif', serif";
+    }
+  }
+  if (detailLow) {
+    detailLow.textContent = b.symbolLow;
+    if (b.font) {
+      detailLow.style.fontFamily = "'" + b.font + "', 'Noto Serif', serif";
+    } else {
+      detailLow.style.fontFamily = "'Noto Serif', serif";
+    }
+  }
+  if (b.symbolLow.length > 1) {
+    document.getElementById('detailSymbolLow').classList.add('small');
+  } else {
+    document.getElementById('detailSymbolLow').classList.remove('small');
+  }
+  document.getElementById('detailName').textContent = b.name;
+  document.getElementById('detailOldname').textContent = b.oldName;
+
+  // --- Заполняем и сбрасываем раскрывающееся описание ---
+  const fullDescEl = document.getElementById('detailFullDesc');
+  const expandBtnTop = document.getElementById('detailExpandBtnTop');
+  const expandBtnBottom = document.getElementById('detailExpandBtnBottom');
+  
+  if (b.fullDesc && b.fullDesc.trim() !== '') {
+    fullDescEl.innerHTML = (b.fullDesc || '').replace(/\n/g, '<br>');
+    fullDescEl.classList.remove('open');
+    expandBtnTop.style.display = 'block';
+    expandBtnTop.textContent = '▼ ПОДРОБНЕЕ';
+    expandBtnBottom.style.display = 'none';
+  } else {
+    fullDescEl.textContent = '';
+    fullDescEl.classList.remove('open');
+    expandBtnTop.style.display = 'none';
+    expandBtnBottom.style.display = 'none';
+  }
+
+  document.getElementById('detailNumeric').textContent = '◈ ' + b.numeric + ' ◈ | № ' + b.number + ' из 49';
+  document.getElementById('detailBody').textContent = b.body || '◈ Тело неизвестно ◈';
+  document.getElementById('detailEncyclopedia').textContent = b.encyclopedia;
+  document.getElementById('detailPrav').textContent = b.prav;
+  document.getElementById('detailNav').textContent = b.nav;
+  document.getElementById('detailYav').textContent = b.yav;
+  document.getElementById('detailSlav').textContent = b.slav;
+
+  document.querySelector('.detail-aspect.slav .detail-aspect-title').innerHTML = '&#x2726; ДУХ — Мир Предков (Славь) <span style="display:inline-block;font-size:15px;margin-left:8px;transform:scaleX(-1);color:#87cefa;text-shadow:0 0 8px rgba(135,206,250,0.4);font-family:' + detailFont + ';">' + b.symbolCap + '</span><span style="font-size:10px;color:#a08060;margin:0 4px;">&#x25C8;</span><span style="display:inline-block;font-size:11px;transform:scaleX(-1);color:#87cefa;opacity:0.7;font-family:' + detailFont + ';">' + b.symbolLow + '</span>';
+
+document.querySelector('.detail-aspect.prav .detail-aspect-title').innerHTML = '&#x2600; ДАР — Светлое Положение (Правь) <span style="display:inline-block;font-size:15px;margin-left:8px;color:#ffffff;text-shadow:0 0 8px rgba(255,255,255,0.5);font-family:' + detailFont + ';">' + b.symbolCap + '</span><span style="font-size:10px;color:#a08060;margin:0 4px;">&#x25C8;</span><span style="display:inline-block;font-size:11px;color:#ffffff;opacity:0.7;font-family:' + detailFont + ';">' + b.symbolLow + '</span>';
+
+document.querySelector('.detail-aspect.yav .detail-aspect-title').innerHTML = '&#x2696; СОЮЗ — Состояние Лада (Явь) <span style="display:inline-block;font-size:15px;margin-left:8px;color:#76ff03;text-shadow:0 0 8px rgba(118,255,3,0.5);font-family:' + detailFont + ';">' + b.symbolCap + '</span><span style="font-size:10px;color:#a08060;margin:0 4px;">&#x25C8;</span><span style="display:inline-block;font-size:11px;color:#76ff03;opacity:0.7;font-family:' + detailFont + ';">' + b.symbolLow + '</span>';
+
+  document.querySelector('.detail-aspect.nav .detail-aspect-title').innerHTML = '&#x263E; ТЕНЬ — Теневое Положение (Навь) <span style="display:inline-block;font-size:15px;margin-left:8px;transform:rotate(180deg);color:#cd5c5c;text-shadow:0 0 8px rgba(205,92,92,0.4);font-family:' + detailFont + ';">' + b.symbolCap + '</span><span style="font-size:10px;color:#a08060;margin:0 4px;">&#x25C8;</span><span style="display:inline-block;font-size:11px;transform:rotate(180deg);color:#cd5c5c;opacity:0.7;font-family:' + detailFont + ';">' + b.symbolLow + '</span>';
+  document.body.classList.add('no-scroll');
+  document.getElementById('detailOverlay').classList.add('active');
+  document.getElementById('detailPopup').classList.add('active');
+}
+
+// === ВЫНЕСЕНА ОТДЕЛЬНО, чтобы onclick её видел ===
+function toggleDetailExpand() {
+  const block = document.getElementById('detailFullDesc');
+  const btnTop = document.getElementById('detailExpandBtnTop');
+  const btnBottom = document.getElementById('detailExpandBtnBottom');
+  
+  if (block.classList.contains('open')) {
+    // --- СВЕРНУТЬ ---
+    block.classList.remove('open');
+    btnTop.textContent = '▼ ПОДРОБНЕЕ';
+    btnBottom.style.display = 'none';
+  } else {
+    // --- РАСКРЫТЬ ---
+    block.classList.add('open');
+    btnTop.textContent = '▲ СВЕРНУТЬ';
+    btnBottom.style.display = 'block';
+  }
+}
+
+function closeDetail() {
+  document.getElementById('detailOverlay').classList.remove('active');
+  document.getElementById('detailPopup').classList.remove('active');
+  document.body.classList.remove('no-scroll');
+}
+
+// === ЗВУК ===
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+function playBellSound() {
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  const now = audioCtx.currentTime;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(991, now);
+  osc.frequency.linearRampToValueAtTime(1636, now + 0.1);
+  osc.frequency.linearRampToValueAtTime(139, now + 0.2);
+  gain.gain.setValueAtTime(0.05, now); 
+  gain.gain.linearRampToValueAtTime(0.03, now + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start(now);
+  osc.stop(now + 0.8);
+}
+
+function showYesNo(event) {
+  if (event) event.stopPropagation();
+  if (typeof currentYesNo === 'undefined' || currentYesNo === null) {
+    currentYesNo = cosmicRandom() < 0.5 ? 'ДА' : 'НЕТ';
+  }
+  const answer = currentYesNo;
+  
+  if (window.lastOracleCard) {
+    window.lastOracleCard.yesNoAnswer = answer;
+  }
+  const aiBtn = document.getElementById('aiChatBtn');
+  if (aiBtn) aiBtn.style.display = 'inline-block';
+
+  const el = document.createElement('div');
+  el.className = 'yesno-float';
+  el.textContent = answer;
+  document.body.appendChild(el);
+  setTimeout(() => {
+    if (el.parentNode) el.parentNode.removeChild(el);
+  }, 2200);
+}
+
+
+// === СБОР ЭНЕРГИИ ПРИКОСНОВЕНИЯ ===
+// Каждое движение пальца или мыши по экрану добавляет уникальный след в пул
+document.addEventListener('mousemove', function(e) {
+  entropyPool += e.clientX + e.clientY + e.movementX + e.movementY;
+});
+document.addEventListener('touchmove', function(e) {
+  if (e.touches && e.touches[0]) {
+    entropyPool += e.touches[0].clientX + e.touches[0].clientY;
+  }
+}, { passive: true });
+
+
+// === VK BRIDGE — ИНИЦИАЛИЗАЦИЯ ДЛЯ VK MINI APPS ===
+function initVKBridge() {
+  if (!window.vkBridge) {
+    console.log('VK Bridge не найден — работаем вне VK');
+    return;
+  }
+
+  // 1. Говорим VK, что приложение загрузилось (ОБЯЗАТЕЛЬНО!)
+  vkBridge.send('VKWebAppInit')
+    .then(() => {
+      console.log('VK Bridge: приложение инициализировано');
+
+      // 2. Устанавливаем цвет шапки и статус-бара под твою тему
+      vkBridge.send('VKWebAppSetViewSettings', {
+        status_bar_style: 'light',
+        action_bar_color: '#1a0f0a'
+      }).catch(() => {});
+
+      // 3. Получаем имя пользователя (опционально)
+      vkBridge.send('VKWebAppGetUserInfo')
+        .then((user) => {
+          console.log('Пользователь:', user.first_name, user.last_name);
+        })
+        .catch((err) => console.log('Не удалось получить пользователя:', err));
+    })
+    .catch((err) => {
+      console.log('Ошибка инициализации VK Bridge:', err);
+    });
+
+  // 4. Следим за сворачиванием/разворачиванием приложения
+  vkBridge.subscribe((event) => {
+    const type = event.detail ? event.detail.type : event.type;
+    if (type === 'VKWebAppViewHide') {
+      console.log('Приложение свернуто');
+    }
+    if (type === 'VKWebAppViewRestore') {
+      console.log('Приложение развернуто');
+    }
+  });
+}
+
+// ================= ИИ-ОРАКУЛ =================
+let chatHistory = [];
+const OPENROUTER_URL = "/api/chat";
+
+function toggleAIChat(event) {
+    if (event) event.stopPropagation();
+    const container = document.getElementById("ai-chat-container");
+    if (container.style.display === "block") {
+        closeAIChat();
+    } else {
+        initAIChat(event);
+    }
+}
+
+function closeAIChat() {
+    const container = document.getElementById("ai-chat-container");
+    container.style.display = "none";
+    const btn = document.getElementById("aiChatBtn");
+    if (btn) {
+        btn.textContent = "🤖 Спросить ИИ";
+        btn.style.borderColor = "rgba(100,240,220,0.4)";
+        btn.style.color = "#a0f0e0";
+        btn.style.textShadow = "0 0 8px rgba(100,240,220,0.3)";
+        btn.style.background = "linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03))";
+    }
+    // Возвращаемся к началу, чтобы заголовок не обрезался
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+
+function initAIChat(event) {
+    if (event) event.stopPropagation();
+    const container = document.getElementById("ai-chat-container");
+    const card = window.lastOracleCard;
+
+    if (!card) {
+        alert("Сначала получите знак (переверните карту).");
+        return;
+    }
+    if (!card.yesNoAnswer) {
+        alert("Сначала нажмите ◈ ПОЛУЧИТЬ ОТВЕТ ◈.");
+        return;
+    }
+
+    container.style.display = "block";
+
+
+    // Меняем кнопку на карте на "Закрыть" с фиолетовым свечением
+    const btn = document.getElementById("aiChatBtn");
+    if (btn) {
+        btn.textContent = "✕ Закрыть ИИ";
+        btn.style.borderColor = "rgba(180,120,220,0.6)";
+        btn.style.color = "#dcc8ff";
+        btn.style.textShadow = "0 0 10px rgba(180,120,220,0.6), 0 0 20px rgba(180,120,220,0.3)";
+        btn.style.background = "linear-gradient(135deg, rgba(140,80,200,0.15), rgba(100,50,160,0.1))";
+    }
+
+    chatHistory = [{
+        role: "system",
+        content: `Ты — мудрый славянский Оракул Буквицы. Пользователю выпала Буквица «${card.name}» (${card.oldName}). Тело: ${card.body}. Аспект: ${card.aspectBadge} — ${card.aspect}. Послание знака: ${card.prediction}. Жребий Да/Нет: ${card.yesNoAnswer}. Веди глубокий диалог, связывая вопросы пользователя с глубинным смыслом этой Буквицы и ответом Да/Нет. Пиши на русском, мудро.`
+    }];
+
+    const chatBox = document.getElementById("ai-chat-messages");
+    chatBox.innerHTML = '<div style="color:#b19053;font-style:italic;font-size:12px;">Оракул настраивается на вибрации Буквицы...</div>';
+
+    getAIResponse("Приветствуй меня. Сделай короткое вводное мистическое предсказание на основе выпавшей карты, упомяни ответ Да/Нет, и спроси, что меня волнует.", false);
+}
+// ================= КОНЕЦ ИИ-БЛОКА =================
+
+async function getAIResponse(userText, isVisualMessage) {
+    const chatBox = document.getElementById("ai-chat-messages");
+    if (isVisualMessage) {
+        chatHistory.push({ role: "user", content: userText });
+        chatBox.innerHTML += `<div style="align-self:flex-end;background:#b19053;color:#000;padding:8px 12px;border-radius:12px 12px 0 12px;max-width:80%;margin-top:5px;font-size:13px;">${escapeHtml(userText)}</div>`;
+        chatBox.innerHTML += `<div id="ai-loading" style="color:#b19053;font-style:italic;margin-top:5px;font-size:12px;">Оракул толкует образы...</div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+    try {
+        const response = await fetch(OPENROUTER_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                model: "meta-llama/llama-3.1-8b-instruct:free",
+                messages: chatHistory
+            })
+        });
+        if (!response.ok) throw new Error("HTTP " + response.status);
+        const data = await response.json();
+        const aiText = data.choices[0].message.content;
+        chatHistory.push({ role: "assistant", content: aiText });
+        const loadingEl = document.getElementById("ai-loading");
+        if (loadingEl) loadingEl.remove();
+        if (!isVisualMessage) chatBox.innerHTML = "";
+        chatBox.innerHTML += `<div style="align-self:flex-start;background:#2d1b0e;color:#e8c880;padding:10px 14px;border-radius:12px 12px 12px 0;max-width:90%;border:1px solid rgba(180,140,80,0.3);margin-top:5px;font-size:13px;line-height:1.5;white-space:pre-wrap;">${escapeHtml(aiText)}</div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+    } catch (err) {
+        console.error("Ошибка ИИ:", err);
+        const loadingEl = document.getElementById("ai-loading");
+        if (loadingEl) loadingEl.remove();
+        chatBox.innerHTML += `<div style="color:#cd5c5c;margin-top:5px;font-size:12px;">Связь с чертогами прервалась (${err.message}).</div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+}
+
+function sendUserMessage() {
+    const input = document.getElementById("ai-user-input");
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = "";
+    getAIResponse(text, true);
+}
+
+function downloadChatHistory() {
+    let text = "--- СЛАВЯНСКИЙ ОРАКУЛ БУКВИЦЫ: ДИАЛОГ ---\n\n";
+    chatHistory.forEach(msg => {
+        if (msg.role === "user") text += `ВЫ: ${msg.content}\n\n`;
+        if (msg.role === "assistant") text += `ОРАКУЛ: ${msg.content}\n\n`;
+    });
+    const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `Беседа_с_Оракулом_${new Date().toLocaleDateString()}.txt`;
+    link.click();
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const input = document.getElementById("ai-user-input");
+    if (input) {
+        input.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') sendUserMessage();
+        });
+    }
+});
+// ================= КОНЕЦ ИИ-БЛОКА =================
+
+
+// Запускаем инициализацию
+initVKBridge();
+</script>
+</body>
+</html>
