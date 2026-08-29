@@ -1809,6 +1809,14 @@ async function getAIResponse(userText, isVisualMessage) {
         });
         if (!response.ok) throw new Error("HTTP " + response.status);
         const data = await response.json();
+
+        if (data.error) {
+            throw new Error(data.message || 'Неизвестная ошибка сервера');
+        }
+        if (!data.choices || !data.choices[0]) {
+            throw new Error('Пустой ответ от ИИ');
+        }
+
         const aiText = data.choices[0].message.content;
         chatHistory.push({ role: "assistant", content: aiText });
         const loadingEl = document.getElementById("ai-loading");
