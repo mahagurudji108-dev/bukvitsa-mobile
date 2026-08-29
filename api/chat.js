@@ -7,6 +7,19 @@ module.exports = async (req, res) => {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
+    // Vercel иногда присылает body как Buffer или строку — распарсим вручную
+    let body = req.body;
+    if (Buffer.isBuffer(body)) {
+      body = JSON.parse(body.toString());
+    } else if (typeof body === 'string') {
+      body = JSON.parse(body);
+    }
+
+    // Проверяем, есть ли ключ (не показываем его, только факт наличия)
+    if (!process.env.OPENROUTER_KEY) {
+      return res.status(200).json({ error: true, message: 'API-ключ не найден. Проверь Environment Variables в Vercel.' });
+    }
+
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -15,17 +28,21 @@ module.exports = async (req, res) => {
         'HTTP-Referer': req.headers.origin || 'https://bukvitsa-mobile.vercel.app',
         'X-Title': 'Bukvitsa Oracle'
       },
-      body: JSON.stringify(req.body)
+      body: JSON.stringify(body)
     });
 
     const data = await response.json();
-    
+
+    // Если OpenRouter сам вернул ошибку — отправим её текстом, а не пустым 500
     if (data.error) {
-      return res.status(500).json({ error: data.error.message || 'OpenRouter error' });
+      return res.status(200).json({ 
+        error: true, 
+        message: data.error.message || 'Ошибка со стороны OpenRouter' 
+      });
     }
 
     res.status(200).json(data);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(200).json({ error: true, message: 'Сервер: ' + err.message });
   }
 };
