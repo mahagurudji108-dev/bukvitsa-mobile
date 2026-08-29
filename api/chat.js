@@ -11,7 +11,7 @@ module.exports = async (req, res) => {
     if (Buffer.isBuffer(body)) body = JSON.parse(body.toString());
     else if (typeof body === 'string') body = JSON.parse(body);
 
-    if (!process.env.ODIROUTER_KEY) {
+    if (!process.env.OPENROUTER_KEY) {
       return res.status(200).json({ error: true, message: 'Ключ OdiRouter не найден в переменных окружения' });
     }
 
