@@ -1957,7 +1957,7 @@ async function startVision() {
       body: JSON.stringify({ prompt, aspect_ratio: aspect, resolution })
     });
     const data = await res.json();
-
+    console.log('POST response:', data);
     if (data.error || !data.request_id) {
       if (statusEl) statusEl.textContent = 'Видение не явилось: ' + (data.message || 'ошибка очереди');
       return;
@@ -1988,7 +1988,7 @@ async function startVision() {
       try {
         const statusRes = await fetch(`/api/image?id=${requestId}&type=status`, { cache: 'no-store' });
         const statusData = await statusRes.json();
-
+        console.log('Status response:', statusData);
         // --- ОБРАТНЫЙ ОТСЧЁТ ---
         if (statusData.queue_position !== undefined && statusEl) {
           const qPos = parseInt(statusData.queue_position, 10);
@@ -2027,6 +2027,7 @@ async function startVision() {
 
           const resultRes = await fetch(`/api/image?id=${requestId}&type=response`);
           const resultData = await resultRes.json();
+          console.log('Result response:', resultData);
 
           const imageUrl = resultData.image_url || resultData.url || resultData.output || resultData.images?.[0]?.url || resultData.data?.[0]?.url;
 
