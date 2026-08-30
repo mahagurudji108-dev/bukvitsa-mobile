@@ -1944,12 +1944,6 @@ async function startVision() {
     statusEl.textContent = 'Отправляем заказ в чертоги...';
   }
 
-  const customPromptEl = document.getElementById('vision-custom-prompt');
-  const customPrompt = customPromptEl ? customPromptEl.value.trim() : '';
-  const prompt = customPrompt || buildVisionPrompt(card);
-  const aspect = document.getElementById('vision-aspect')?.value || '1:1';
-  const resolution = document.getElementById('vision-resolution')?.value || '1K';
-
   try {
     const res = await fetch('/api/image', {
       method: 'POST',
@@ -1958,6 +1952,7 @@ async function startVision() {
     });
     const data = await res.json();
     console.log('POST response:', data);
+
     if (data.error || !data.request_id) {
       if (statusEl) statusEl.textContent = 'Видение не явилось: ' + (data.message || 'ошибка очереди');
       return;
@@ -1974,7 +1969,7 @@ async function startVision() {
     let startCheckTime = null;
     visionCheckInterval = setInterval(async () => {
       attempts++;
-      if (attempts > 120) { // 10 минут (120 * 5 сек)
+      if (attempts > 120) {
         clearInterval(visionCheckInterval);
         visionCheckInterval = null;
         stopVisionTimer();
@@ -1990,85 +1985,52 @@ async function startVision() {
         const statusData = await statusRes.json();
         console.log('Status response:', statusData);
 
-
-           // --- ОБРАТНЫЙ ОТСЧЁТ С ТОЧНЫМ ВРЕМЕНЕМ ---
+        // --- ОБРАТНЫЙ ОТСЧЁТ ---
         if (statusData.queue_position !== undefined && statusEl) {
           const qPos = parseInt(statusData.queue_position, 10);
-          
-          // Запоминаем начальную позицию при первом запросе
           if (startQueuePos === null) {
             startQueuePos = qPos;
             startCheckTime = Date.now();
           }
 
           if (qPos <= 0) {
-            // Если очередь 0 - образ уже генерируется
             statusEl.textContent = '⚡ Образ рождается в чертогах...';
           } else {
             const elapsedSec = (Date.now() - startCheckTime) / 1000;
             const processed = startQueuePos - qPos;
             let etaText = '';
-            
-            // Если есть прогресс и прошло время - считаем ETA
             if (processed > 0 && elapsedSec > 0) {
-              const speed = processed / elapsedSec; // позиций в секунду
+              const speed = processed / elapsedSec;
               const remaining = Math.max(1, Math.round(qPos / speed));
-              etaText = ` ⏳ Осталось ~${remaining} сек`;
-            } else if (elapsedSec > 10 && qPos > 0) {
-              // Если очередь не двигается больше 10 секунд
-              etaText = ' ⏳ Очередь движется медленно...';
+              etaText = ` | ⏳ Осталось примерно ${remaining} сек`;
+            } else if (elapsedSec > 15) {
+              etaText = ' | ⏳ Очередь движется медленно...';
             }
-            
-            // Показываем позицию в очереди + ETA
             statusEl.textContent = `📍 Позиция в очереди: ${qPos}${etaText}`;
           }
-        } else if (statusEl && statusData.status === 'IN_PROGRESS') {
-          // Если нет queue_position, но статус IN_PROGRESS
+        } else if (statusEl && !statusData.image_url && !statusData.url) {
           statusEl.textContent = '⚡ Образ рождается в чертогах...';
         }
 
-
-
-
-
-
-
-
-
-
-
-        const isDone = statusData.status === 'completed' || statusData.status === 'done' || statusData.done === true || statusData.image_url || statusData.url || (statusData.images && statusData.images.length > 0);
-
+        // --- ПРОВЕРКА ЗАВЕРШЕНИЯ (ИСПРАВЛЕНО) ---
+        const isDone = statusData.status === 'COMPLETED' || statusData.status === 'completed' || statusData.status === 'done';
 
         if (isDone) {
           clearInterval(visionCheckInterval);
           visionCheckInterval = null;
           stopVisionTimer();
 
-          // Получаем финальный ответ (содержит response_url, но не картинку)
           const resultRes = await fetch(`/api/image?id=${requestId}&type=response`);
           const resultData = await resultRes.json();
           console.log('Result response:', resultData);
 
-          // Теперь запрашиваем фактический URL картинки по response_url
-          let imageUrl = null;
-          if (resultData.response_url) {
-            const imageRes = await fetch(resultData.response_url, {
-              headers: { 'Authorization': `Bearer ${process.env.BANANA_API_KEY}` } // на фронтенде это не сработает, но можно просто fetch без ключа, если он публичный
-            });
-            const imageData = await imageRes.json();
-            console.log('Image data from response_url:', imageData);
-            imageUrl = imageData.image_url || imageData.url || imageData.output;
-          }
-
-          // Если не получили через response_url, пробуем другие поля
-          if (!imageUrl) {
-            imageUrl = resultData.image_url || resultData.url || resultData.output || resultData.images?.[0]?.url || resultData.data?.[0]?.url;
-          }
+          // Поиск ссылки на изображение
+          const imageUrl = resultData.image_url || resultData.url || resultData.output || resultData.images?.[0]?.url || resultData.data?.[0]?.url;
 
           if (imageUrl) {
             const resultArea = document.getElementById('vision-result-area');
             if (statusEl) statusEl.style.display = 'none';
+
             if (resultArea) resultArea.style.display = 'block';
             img.src = imageUrl;
             img.style.display = 'block';
@@ -2080,10 +2042,7 @@ async function startVision() {
               statusEl.textContent = 'Видение пришло, но неразличимо...';
             }
           }
-        }
-
-
-else if (statusData.status === 'failed' || statusData.error) {
+        } else if (statusData.status === 'FAILED' || statusData.error) {
           clearInterval(visionCheckInterval);
           visionCheckInterval = null;
           stopVisionTimer();
@@ -2092,7 +2051,9 @@ else if (statusData.status === 'failed' || statusData.error) {
             statusEl.textContent = 'Видение рассеялось...';
           }
         }
-      } catch (e) {}
+      } catch (e) {
+        console.error('Ошибка в цикле статуса:', e);
+      }
     }, 5000);
 
   } catch (err) {
@@ -2102,6 +2063,8 @@ else if (statusData.status === 'failed' || statusData.error) {
     }
   }
 }
+
+
 
 function expandVision() {
   const img = document.getElementById('vision-img');
