@@ -2081,7 +2081,28 @@ async function startVision() {
 
 function expandVision() {
   const img = document.getElementById('vision-img');
-  if (img && img.src && img.style.display !== 'none') {
+  if (!img || !img.src || img.style.display === 'none') {
+    alert('Сначала создайте изображение');
+    return;
+  }
+  
+  // Если это data:image (base64) – скачиваем и открываем во вкладке
+  if (img.src.startsWith('data:image')) {
+    // Создаём временный объект URL из base64
+    fetch(img.src)
+      .then(res => res.blob())
+      .then(blob => {
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+        // Освобождаем память через 5 секунд
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+      })
+      .catch(() => {
+        // Если не получилось – просто показываем alert
+        alert('Не удалось открыть изображение в новой вкладке');
+      });
+  } else {
+    // Если это обычная ссылка – открываем как есть
     window.open(img.src, '_blank');
   }
 }
