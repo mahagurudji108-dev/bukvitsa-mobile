@@ -712,7 +712,9 @@ body {
           <div class="card-udel" id="cardUdel">✦ УДЕЛ ПО ЗНАКУ ✦</div>
           <div class="card-prediction" id="cardPrediction">Послание предков...</div>
           <button class="yesno-btn" onclick="showYesNo(event)">◈ ПОЛУЧИТЬ ОТВЕТ ◈</button>
-<button class="yesno-btn" id="aiChatBtn" onclick="toggleAIChat(event)" style="display:none; margin-top:6px; border-color:rgba(100,240,220,0.4); color:#a0f0e0; text-shadow:0 0 8px rgba(100,240,220,0.3);">🤖 Спросить ИИ</button>
+<div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:6px;">
+  <button class="yesno-btn" id="aiChatBtn" onclick="toggleAIChat(event)" style="display:none; border-color:rgba(100,240,220,0.4); color:#a0f0e0; text-shadow:0 0 8px rgba(100,240,220,0.3);">🤖 Спросить ИИ</button>
+  <button class="yesno-btn" id="visionBtn" onclick="toggleVision(event)" style="display:none; border-color:rgba(191,113,44,0.5); color:#e8c880; text-shadow:0 0 8px rgba(80,128,59,0.3);">◈ ОБРАЗ ИИ ◈</button>
         </div>
       </div>
     </div>
@@ -831,6 +833,38 @@ body {
   </div>
 </div>
 <!-- ================= КОНЕЦ ИИ-ЧАТА ================= -->
+<!-- ================= ОБРАЗ БУКВИЦЫ ================= -->
+<div id="vision-container" style="display:none; max-width:600px; width:100%; margin:20px auto; border:1px solid rgba(180,140,80,0.4); border-radius:12px; background:linear-gradient(135deg, #1a0f0a 0%, #2d1b0e 100%); overflow:hidden; position:relative; z-index:1;">
+  <div style="background:rgba(212,168,83,0.15); border-bottom:1px solid rgba(180,140,80,0.3); padding:10px 14px; font-family:'Cinzel',serif; font-size:13px; color:#d4a853; letter-spacing:2px; display:flex; justify-content:space-between; align-items:center;">
+    <span>◈ Видение Буквицы ◈</span>
+    <button onclick="closeVision()" style="background:rgba(180,120,220,0.15); border:1px solid rgba(180,120,220,0.5); color:#dcc8ff; padding:5px 12px; cursor:pointer; border-radius:20px; font-family:'Cinzel',serif; font-size:10px; letter-spacing:1px; text-shadow:0 0 6px rgba(180,120,220,0.4);">✕ Закрыть</button>
+  </div>
+  <div style="padding:12px;">
+    <div id="vision-prompt-box" style="margin-bottom:10px; font-size:11px; color:#a08060; font-style:italic; font-family:'Noto Serif',serif; line-height:1.4;"></div>
+    <div style="display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap;">
+      <select id="vision-aspect" style="background:rgba(30,20,10,0.6); border:1px solid rgba(180,140,80,0.3); color:#e8c880; font-family:'Cinzel',serif; font-size:11px; padding:6px 10px; border-radius:20px; outline:none;">
+        <option value="1:1">1:1 Квадрат</option>
+        <option value="16:9">16:9 Широкий</option>
+        <option value="3:4">3:4 Портрет</option>
+        <option value="9:16">9:16 Мобильный</option>
+      </select>
+      <select id="vision-resolution" style="background:rgba(30,20,10,0.6); border:1px solid rgba(180,140,80,0.3); color:#e8c880; font-family:'Cinzel',serif; font-size:11px; padding:6px 10px; border-radius:20px; outline:none;">
+        <option value="1K">1K</option>
+        <option value="2K">2K</option>
+        <option value="512">512</option>
+      </select>
+      <button onclick="startVision()" style="flex:1; min-width:120px; background:linear-gradient(135deg, #b8860b 0%, #f4d03f 50%, #b8860b 100%); border:1px solid rgba(255,215,0,0.6); color:#1a0f0a; font-family:'Cinzel',serif; font-size:11px; font-weight:bold; padding:6px 12px; border-radius:20px; cursor:pointer; letter-spacing:1px;">◈ СОТВОРИТЬ ОБРАЗ ◈</button>
+    </div>
+    <div id="vision-status" style="color:#b19053; font-size:12px; font-style:italic; font-family:'Cinzel',serif; letter-spacing:1px; margin-bottom:4px; display:none;"></div>
+    <div id="vision-timer" style="color:#806040; font-size:11px; font-family:'Cinzel',serif; margin-bottom:8px; display:none;">Время ожидания: <span id="vision-seconds">0</span> сек</div>
+    <img id="vision-img" style="max-width:100%; width:100%; border-radius:8px; border:1px solid rgba(180,140,80,0.4); display:none; box-shadow:0 0 20px rgba(212,168,83,0.3); cursor:pointer;" onclick="expandVision()" alt="Видение Буквицы" />
+    <div id="vision-actions" style="display:none; gap:8px; margin-top:10px; justify-content:center; flex-wrap:wrap;">
+      <button onclick="expandVision()" style="background:rgba(135,206,250,0.15); border:1px solid rgba(135,206,250,0.5); color:#87cefa; padding:6px 14px; border-radius:20px; font-family:'Cinzel',serif; font-size:10px; cursor:pointer;">🔍 Расширить</button>
+      <button onclick="saveVision()" style="background:rgba(118,255,3,0.12); border:1px solid rgba(118,255,3,0.4); color:#76ff03; padding:6px 14px; border-radius:20px; font-family:'Cinzel',serif; font-size:10px; cursor:pointer;">💾 Сохранить</button>
+    </div>
+  </div>
+</div>
+<!-- ================= КОНЕЦ ОБРАЗА ================= -->
 
 <div class="detail-overlay" id="detailOverlay" onclick="closeDetail()"></div>
 <div class="detail-popup" id="detailPopup">
@@ -1185,6 +1219,7 @@ let gridVisible = false;
 let spreadMode = false;
 let btnTimer = null;
 let entropyPool = 0; // Бассейн энтропии: собирает хаос от твоих движений по экрану
+let currentYesNo = null;
 
 // === КОСМИЧЕСКИЙ ЖРЕБИЙ (работает на всех устройствах) ===
 function cosmicRandom() {
@@ -1299,6 +1334,15 @@ function fillCard(b, aspect, suffix) {
       aspectBadge: aspect.badge,
       prediction: b[aspect.key]
     };
+    // Показываем кнопку Образ ИИ
+
+    const vCont = document.getElementById('vision-container');
+    if (vCont) vCont.style.display = 'none';
+    stopVisionTimer();
+    if (visionCheckInterval) {
+      clearInterval(visionCheckInterval);
+      visionCheckInterval = null;
+    }
   }
 }
 
@@ -1306,10 +1350,40 @@ function drawBukvitsa() {
   const btn = document.getElementById('drawBtn');
   if (btn.disabled) return;
   currentYesNo = null;
+
+   // Сбрасываем кнопки и окна при новой карте
   const aiBtn = document.getElementById('aiChatBtn');
-  if (aiBtn) aiBtn.style.display = 'none';
+  if (aiBtn) {
+    aiBtn.style.display = 'none';
+    aiBtn.textContent = '🤖 Спросить ИИ';
+    aiBtn.style.borderColor = 'rgba(100,240,220,0.4)';
+    aiBtn.style.color = '#a0f0e0';
+    aiBtn.style.textShadow = '0 0 8px rgba(100,240,220,0.3)';
+    aiBtn.style.background = 'linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03))';
+  }
+  const chatCont = document.getElementById('ai-chat-container');
+  if (chatCont) chatCont.style.display = 'none';
+  const visionBtn = document.getElementById('visionBtn');
+
+
+  if (visionBtn) {
+    visionBtn.style.display = 'none';
+    visionBtn.textContent = '◈ ОБРАЗ ИИ ◈';
+    visionBtn.style.borderColor = 'rgba(212,168,83,0.5)';
+    visionBtn.style.color = '#e8c880';
+  }
+  const vCont = document.getElementById('vision-container');
+  if (vCont) vCont.style.display = 'none';
+
+ 
+  stopVisionTimer();
+  if (visionCheckInterval) {
+    clearInterval(visionCheckInterval);
+    visionCheckInterval = null;
+  }
 
   if (spreadMode) {
+
     toggleSpreadMode();
     setTimeout(() => drawBukvitsa(), 300);
     return;
@@ -1376,6 +1450,8 @@ function flipCard() {
       currentYesNo = null;
       const aiBtn = document.getElementById('aiChatBtn');
       if (aiBtn) aiBtn.style.display = 'none';
+      const visionBtn = document.getElementById('visionBtn');
+      if (visionBtn) visionBtn.style.display = 'none';
     }, 400);
   }
 }
@@ -1657,6 +1733,8 @@ function showYesNo(event) {
   }
   const aiBtn = document.getElementById('aiChatBtn');
   if (aiBtn) aiBtn.style.display = 'inline-block';
+  const visionBtn = document.getElementById('visionBtn');
+  if (visionBtn) visionBtn.style.display = 'inline-block';
 
   const el = document.createElement('div');
   el.className = 'yesno-float';
@@ -1724,6 +1802,196 @@ function initVKBridge() {
 // ================= ИИ-ОРАКУЛ =================
 let chatHistory = [];
 const OPENROUTER_URL = "/api/chat";
+
+
+let visionCheckInterval = null;
+let visionTimerInterval = null;
+let visionElapsed = 0;
+
+function buildVisionPrompt(card) {
+  if (!card) return 'Ancient Slavic mystical rune, sacred symbol, dark fantasy art';
+  const bodyClean = (card.body || '').replace(/[^\w\s\u0400-\u04FF]/g, '').trim();
+  const aspect = card.aspect || 'Дар';
+  return `Ancient Slavic mystical bukvitsa "${card.name}", sacred rune, ${bodyClean}, ${aspect} aspect, ethereal golden fire and starlight, dark occult fantasy background, magical atmosphere, highly detailed digital art, 4k, no text, no letters, no watermark`;
+}
+
+function toggleVision(event) {
+  if (event) event.stopPropagation();
+  const container = document.getElementById('vision-container');
+  const btn = document.getElementById('visionBtn');
+  if (!container) return;
+
+  if (container.style.display === 'block') {
+    closeVision();
+  } else {
+    const card = window.lastOracleCard;
+    if (card) {
+      const promptBox = document.getElementById('vision-prompt-box');
+      if (promptBox) promptBox.textContent = 'Автопромт: ' + buildVisionPrompt(card);
+    }
+    container.style.display = 'block';
+    container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    if (btn) {
+      btn.textContent = '✕ Закрыть Образ';
+      btn.style.borderColor = 'rgba(180,120,220,0.6)';
+      btn.style.color = '#dcc8ff';
+    }
+  }
+}
+
+function closeVision() {
+  const container = document.getElementById('vision-container');
+  if (container) container.style.display = 'none';
+  stopVisionTimer();
+  if (visionCheckInterval) {
+    clearInterval(visionCheckInterval);
+    visionCheckInterval = null;
+  }
+  const btn = document.getElementById('visionBtn');
+  if (btn) {
+    btn.textContent = '◈ ОБРАЗ ИИ ◈';
+    btn.style.borderColor = 'rgba(212,168,83,0.5)';
+    btn.style.color = '#e8c880';
+  }
+}
+
+function startVisionTimer() {
+  visionElapsed = 0;
+  const timerEl = document.getElementById('vision-timer');
+  const secEl = document.getElementById('vision-seconds');
+  if (timerEl) timerEl.style.display = 'block';
+  if (visionTimerInterval) clearInterval(visionTimerInterval);
+  visionTimerInterval = setInterval(() => {
+    visionElapsed++;
+    if (secEl) secEl.textContent = visionElapsed;
+  }, 1000);
+}
+
+function stopVisionTimer() {
+  if (visionTimerInterval) clearInterval(visionTimerInterval);
+  visionTimerInterval = null;
+  const timerEl = document.getElementById('vision-timer');
+  if (timerEl) timerEl.style.display = 'none';
+}
+
+async function startVision() {
+  const statusEl = document.getElementById('vision-status');
+  const img = document.getElementById('vision-img');
+  const actions = document.getElementById('vision-actions');
+  const card = window.lastOracleCard;
+
+  if (!card) return;
+
+  img.style.display = 'none';
+  img.src = '';
+  actions.style.display = 'none';
+  if (statusEl) {
+    statusEl.style.display = 'block';
+    statusEl.textContent = 'Отправляем заказ в чертоги...';
+  }
+
+  const prompt = buildVisionPrompt(card);
+  const aspect = document.getElementById('vision-aspect')?.value || '1:1';
+  const resolution = document.getElementById('vision-resolution')?.value || '1K';
+
+  try {
+    const res = await fetch('/api/image', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt, aspect_ratio: aspect, resolution })
+    });
+    const data = await res.json();
+
+    if (data.error || !data.request_id) {
+      if (statusEl) statusEl.textContent = 'Видение не явилось: ' + (data.message || 'ошибка очереди');
+      return;
+    }
+
+    const requestId = data.request_id;
+    if (statusEl) statusEl.textContent = 'Видение стоит в очереди Предков...';
+    startVisionTimer();
+
+    if (visionCheckInterval) clearInterval(visionCheckInterval);
+
+    let attempts = 0;
+    visionCheckInterval = setInterval(async () => {
+      attempts++;
+      if (attempts > 72) {
+        clearInterval(visionCheckInterval);
+        visionCheckInterval = null;
+        stopVisionTimer();
+        if (statusEl) statusEl.textContent = 'Видение неявилось за долгое время...';
+        return;
+      }
+
+      try {
+        const statusRes = await fetch(`/api/image?id=${requestId}&type=status`);
+        const statusData = await statusRes.json();
+
+        if (statusData.queue_position && statusEl) {
+          statusEl.textContent = `Позиция в очереди: ${statusData.queue_position} | Ждём: ${visionElapsed} сек`;
+        }
+
+        const isDone = statusData.status === 'completed' || statusData.status === 'done' || statusData.done === true || statusData.image_url || (statusData.images && statusData.images.length > 0);
+
+        if (isDone) {
+          clearInterval(visionCheckInterval);
+          visionCheckInterval = null;
+          stopVisionTimer();
+
+          const resultRes = await fetch(`/api/image?id=${requestId}&type=response`);
+          const resultData = await resultRes.json();
+
+          const imageUrl = resultData.image_url || resultData.url || resultData.output || resultData.images?.[0]?.url || resultData.data?.[0]?.url;
+
+          if (imageUrl) {
+            if (statusEl) statusEl.style.display = 'none';
+            img.src = imageUrl;
+            img.style.display = 'block';
+            actions.style.display = 'flex';
+          } else {
+            if (statusEl) {
+              statusEl.style.display = 'block';
+              statusEl.textContent = 'Видение пришло, но неразличимо...';
+            }
+          }
+        } else if (statusData.status === 'failed' || statusData.error) {
+          clearInterval(visionCheckInterval);
+          visionCheckInterval = null;
+          stopVisionTimer();
+          if (statusEl) {
+            statusEl.style.display = 'block';
+            statusEl.textContent = 'Видение рассеялось...';
+          }
+        }
+      } catch (e) {}
+    }, 5000);
+
+  } catch (err) {
+    if (statusEl) {
+      statusEl.style.display = 'block';
+      statusEl.textContent = 'Связь с чертогами изображений прервалась';
+    }
+  }
+}
+
+function expandVision() {
+  const img = document.getElementById('vision-img');
+  if (img && img.src && img.style.display !== 'none') {
+    window.open(img.src, '_blank');
+  }
+}
+
+function saveVision() {
+  const img = document.getElementById('vision-img');
+  if (!img || !img.src || img.style.display === 'none') return;
+  const link = document.createElement('a');
+  link.href = img.src;
+  link.download = `Видение_${window.lastOracleCard?.name || 'Буквица'}_${new Date().toLocaleDateString()}.png`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
 
 function toggleAIChat(event) {
     if (event) event.stopPropagation();
