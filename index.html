@@ -691,8 +691,8 @@ body {
 
   <!-- === РЕЖИМ ОДНОЙ КАРТЫ === -->
   <div id="singleMode">
-    <div class="single-card-scene" id="cardScene">
-      <div class="card" id="tarotCard">
+    <div class="single-card-scene" id="cardScene"> 
+      <div class="card" id="tarotCard"> 
         <div class="card-face card-front">
           <div class="card-front-label">НАЖМИ ДЛЯ ЗНАКА</div>
         </div>
@@ -712,11 +712,10 @@ body {
           <div class="card-udel" id="cardUdel">✦ УДЕЛ ПО ЗНАКУ ✦</div>
           <div class="card-prediction" id="cardPrediction">Послание предков...</div>
           <button class="yesno-btn" onclick="showYesNo(event)">◈ ПОЛУЧИТЬ ОТВЕТ ◈</button>
-<div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:6px;">
-  <button class="yesno-btn" id="aiChatBtn" onclick="toggleAIChat(event)" style="display:none; border-color:rgba(100,240,220,0.4); color:#a0f0e0; text-shadow:0 0 8px rgba(100,240,220,0.3);">🤖 Спросить ИИ</button>
-  <button class="yesno-btn" id="visionBtn" onclick="toggleVision(event)" style="display:none; border-color:rgba(191,113,44,0.5); color:#e8c880; text-shadow:0 0 8px rgba(80,128,59,0.3);">◈ ОБРАЗ ИИ ◈</button>
         </div>
       </div>
+  <button class="yesno-btn" id="aiChatBtn" onclick="toggleAIChat(event)" style="display:none; border-color:rgba(100,240,220,0.4); color:#a0f0e0; text-shadow:0 0 8px rgba(100,240,220,0.3);">🤖 Спросить ИИ</button>
+  <button class="yesno-btn" id="visionBtn" onclick="toggleVision(event)" style="display:none; border-color:rgba(191,113,44,0.5); color:#e8c880; text-shadow:0 0 8px rgba(80,128,59,0.3);">◈ ОБРАЗ ИИ ◈</button>
     </div>
   </div>
 
@@ -770,7 +769,7 @@ body {
             <div class="card-oldname" id="cardOldName2">Аჳъ</div>
             <div class="card-numeric" id="cardNumeric2">1 — Единъ</div>
             <div class="card-body" id="cardBody2"></div>
-            <div class="card-udel" id="cardUdel1">✦ УДЕЛ ПО ЗНАКУ ✦</div>
+             <div class="card-udel" id="cardUdel2">✦ УДЕЛ ПО ЗНАКУ ✦</div>
             <div class="card-prediction" id="cardPrediction2">Послание предков...</div>
           </div>
         </div>
@@ -797,7 +796,7 @@ body {
             <div class="card-oldname" id="cardOldName3">Аჳъ</div>
             <div class="card-numeric" id="cardNumeric3">1 — Единъ</div>
             <div class="card-body" id="cardBody3"></div>
-            <div class="card-udel" id="cardUdel1">✦ УДЕЛ ПО ЗНАКУ ✦</div>
+            <div class="card-udel" id="cardUdel3">✦ УДЕЛ ПО ЗНАКУ ✦</div>
             <div class="card-prediction" id="cardPrediction3">Послание предков...</div>
           </div>
         </div>
@@ -1223,7 +1222,7 @@ encyclopedia: "Глаголи — сила живого слова, способ
 
 let isFlipped = false;
 let gridVisible = false;
-let spreadMode = false;
+let isSpreadMode = false;
 let btnTimer = null;
 let entropyPool = 0; // Бассейн энтропии: собирает хаос от твоих движений по экрану
 let currentYesNo = null;
@@ -1368,29 +1367,8 @@ function drawBukvitsa() {
     aiBtn.style.textShadow = '0 0 8px rgba(100,240,220,0.3)';
     aiBtn.style.background = 'linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03))';
   }
-  const chatCont = document.getElementById('ai-chat-container');
-  if (chatCont) chatCont.style.display = 'none';
-  const visionBtn = document.getElementById('visionBtn');
 
-
-  if (visionBtn) {
-    visionBtn.style.display = 'none';
-    visionBtn.textContent = '◈ ОБРАЗ ИИ ◈';
-    visionBtn.style.borderColor = 'rgba(212,168,83,0.5)';
-    visionBtn.style.color = '#e8c880';
-  }
-  const vCont = document.getElementById('vision-container');
-  if (vCont) vCont.style.display = 'none';
-
- 
-  stopVisionTimer();
-  if (visionCheckInterval) {
-    clearInterval(visionCheckInterval);
-    visionCheckInterval = null;
-  }
-
-  if (spreadMode) {
-
+  if (isSpreadMode) {
     toggleSpreadMode();
     setTimeout(() => drawBukvitsa(), 300);
     return;
@@ -1443,6 +1421,8 @@ function drawBukvitsa() {
     doTheFlip();
   }
 }
+
+
 function flipCard() {
   if (spreadMode) return;
   if (!isFlipped) {
@@ -1470,25 +1450,50 @@ function toggleSpreadMode() {
     btnTimer = null;
   }
   document.getElementById('drawBtn').disabled = false;
-  spreadMode = !spreadMode;
+
+  // --- Закрываем ИИ-окна при смене режима ---
+  const chatCont = document.getElementById('ai-chat-container');
+  if (chatCont) chatCont.style.display = 'none';
+  const vCont = document.getElementById('vision-container');
+  if (vCont) vCont.style.display = 'none';
+  const aiBtn = document.getElementById('aiChatBtn');
+  if (aiBtn) { aiBtn.style.display = 'none'; aiBtn.textContent = '🤖 Спросить ИИ'; }
+  const visionBtn = document.getElementById('visionBtn');
+  if (visionBtn) { visionBtn.style.display = 'none'; visionBtn.textContent = '◈ ОБРАЗ ИИ ◈'; }
+  if (typeof stopVisionTimer === 'function') stopVisionTimer();
+  if (typeof visionCheckInterval !== 'undefined' && visionCheckInterval) {
+    clearInterval(visionCheckInterval);
+    visionCheckInterval = null;
+  }
+  // --- конец ---
+
+  isSpreadMode = !isSpreadMode;
   const singleMode = document.getElementById('singleMode');
   const spreadModeEl = document.getElementById('spreadMode');
   const spreadBtn = document.getElementById('spreadBtn');
   const drawBtn = document.getElementById('drawBtn');
   const hintText = document.getElementById('hintText');
 
-  if (spreadMode) {
+  if (isSpreadMode) {
+    // Уходим в режим 3 карт
     singleMode.style.display = 'none';
-    spreadModeEl.classList.add('active');
+    spreadModeEl.style.display = 'flex';
     spreadBtn.classList.add('active');
-    spreadBtn.textContent = '◈ 1 ЗНАК ◈';
-    drawBtn.textContent = '◈ РАСКЛАД 3 ЗНАКА ◈';
+    spreadBtn.textContent = '◈ НАЗАД К 1 КАРТЕ ◈';
+    drawBtn.textContent = '◈ ОТКРЫТЬ 3 КАРТЫ ◈';
     drawBtn.setAttribute('onclick', 'drawThreeCards()');
     hintText.textContent = 'Сосредоточься на вопросе и нажми РАСКЛАД — карты откроются одна за другой';
 
+    // Сбрасываем карты в рубашку, чтобы они были видны сразу
+    for (let pos = 1; pos <= 3; pos++) {
+      const c = document.getElementById('card' + pos);
+      if (c) c.classList.remove('flipped');
+    }
+
   } else {
+    // Возвращаемся к 1 карте
     singleMode.style.display = 'block';
-    spreadModeEl.classList.remove('active');
+    spreadModeEl.style.display = 'none';
     spreadBtn.classList.remove('active');
     spreadBtn.textContent = '◈ РАСКЛАД 3 КАРТЫ ◈';
     drawBtn.textContent = '◈ ПОЛУЧИТЬ ЗНАК ◈';
@@ -1498,8 +1503,26 @@ function toggleSpreadMode() {
 }
 
 function drawThreeCards() {
+  // --- Закрываем ИИ-окна перед новым раскладом ---
+  const chatCont2 = document.getElementById('ai-chat-container');
+  if (chatCont2) chatCont2.style.display = 'none';
+  const vCont2 = document.getElementById('vision-container');
+  if (vCont2) vCont2.style.display = 'none';
+  const aiBtn2 = document.getElementById('aiChatBtn');
+  if (aiBtn2) aiBtn2.style.display = 'none';
+  const visionBtn2 = document.getElementById('visionBtn');
+  if (visionBtn2) visionBtn2.style.display = 'none';
+  if (typeof stopVisionTimer === 'function') stopVisionTimer();
+  if (typeof visionCheckInterval !== 'undefined' && visionCheckInterval) {
+    clearInterval(visionCheckInterval);
+    visionCheckInterval = null;
+  }
+  // --- конец ---
   const btn = document.getElementById('drawBtn');
-  if (!spreadMode || btn.disabled) return;
+  if (!isSpreadMode || btn.disabled) return;
+
+  // Гарантия, что спред точно виден
+
   btn.disabled = true;
   const originalText = btn.textContent;
   let seconds = 6;
@@ -1533,6 +1556,7 @@ function drawThreeCards() {
     }, pos * 700);
   }
 }
+
 
 function renderGrid() {
   const grid = document.getElementById('bukvitsaGrid');
@@ -1590,14 +1614,16 @@ function toggleGrid() {
   const toggleBtn = document.getElementById('toggleBtn');
   gridVisible = !gridVisible;
   if (gridVisible) {
-    gridSection.classList.add('active');
+    gridSection.style.display = 'block';
     toggleBtn.textContent = '🔮 СКРЫТЬ';
     renderGrid();
   } else {
-    gridSection.classList.remove('active');
+    gridSection.style.display = 'none';
     toggleBtn.textContent = '📜 СЕТКА';
   }
 }
+
+
 // === ПОПАП ===
 function showDetail(idx) {
   const b = bukvitsy[idx];
@@ -1867,12 +1893,7 @@ function toggleVision(event) {
   }
 }
 
-function closeVision() {
-  
-    clearInterval(visionCheckInterval);
-    visionCheckInterval = null;
-  }
-
+function startVisionTimer() {
   visionElapsed = 0;
   const timerEl = document.getElementById('vision-timer');
   const secEl = document.getElementById('vision-seconds');
@@ -1882,6 +1903,22 @@ function closeVision() {
     visionElapsed++;
     if (secEl) secEl.textContent = visionElapsed;
   }, 1000);
+}
+
+function closeVision() {
+  clearInterval(visionCheckInterval);
+  visionCheckInterval = null;
+  stopVisionTimer();
+  const container = document.getElementById('vision-container');
+  const btn = document.getElementById('visionBtn');
+  if (container) container.style.display = 'none';
+  if (btn) {
+    btn.textContent = '◈ ОБРАЗ ИИ ◈';
+    btn.style.borderColor = 'rgba(212,168,83,0.5)';
+    btn.style.color = '#e8c880';
+  }
+  const resultArea = document.getElementById('vision-result-area');
+  if (resultArea) resultArea.style.display = 'none';
 }
 
 function stopVisionTimer() {
@@ -2003,7 +2040,6 @@ async function startVision() {
             img.style.display = 'block';
             actions.style.display = 'flex';
             setTimeout(() => resultArea.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
-          }
           } else {
             if (statusEl) {
               statusEl.style.display = 'block';
