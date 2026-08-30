@@ -1,169 +1,113 @@
 module.exports = async (req, res) => {
-  // Разрешаем CORS для любых источников
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  
-  // Обработка предварительного запроса (OPTIONS)
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
+  if (req.method === 'OPTIONS') return res.status(200).end();
 
-  // === POST: создание задачи ===
   if (req.method === 'POST') {
     try {
-      // Парсим тело запроса
       let body = req.body;
       if (Buffer.isBuffer(body)) body = JSON.parse(body.toString());
       else if (typeof body === 'string') body = JSON.parse(body);
 
-      // Проверяем, есть ли API ключ
-      const apiKey = process.env.BANANA_API_KEY;
-      
-      // Если ключа нет – сразу возвращаем тестовый ответ
-      if (!apiKey) {
-        console.log('⚠️ BANANA_API_KEY не найден, возвращаем тестовый ответ');
-        return res.status(200).json({
-          request_id: 'test_' + Date.now(),
-          queue_position: 0,
-          message: 'Тестовый режим: ключ API не найден'
-        });
-      }
-
-      // Отправляем запрос к odirouter
       const response = await fetch('https://api.odirouter.ai/model/v1/queue/free-nano-banana-2', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${apiKey}`,
+          'Authorization': `Bearer ${process.env.BANANA_API_KEY}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          prompt: body.prompt || 'Ancient Slavic mystical rune',
+          prompt: body.prompt,
           aspect_ratio: body.aspect_ratio || '1:1',
           resolution: body.resolution || '1K'
         })
       });
-
-      // Получаем ответ от odirouter
       const data = await response.json();
-      console.log('✅ Ответ от odirouter (POST):', data);
-      
-      // Если odirouter вернул ошибку – возвращаем тестовый ответ
-      if (data.error) {
-        console.log('⚠️ Ошибка odirouter:', data.error);
-        return res.status(200).json({
-          request_id: 'test_' + Date.now(),
-          queue_position: 0,
-          message: 'Тестовый режим: ошибка odirouter'
-        });
-      }
-
       return res.status(200).json(data);
-      
     } catch (err) {
-      // При любой ошибке – возвращаем тестовый ответ
-      console.error('❌ Ошибка в POST:', err.message);
-      return res.status(200).json({
-        request_id: 'test_' + Date.now(),
-        queue_position: 0,
-        message: 'Тестовый режим: ошибка сервера'
-      });
+      return res.status(200).json({ error: true, message: err.message });
     }
   }
 
-  // === GET: статус или ответ ===
   if (req.method === 'GET') {
     try {
       const { id, type } = req.query;
-      
-      // Если нет id – возвращаем тестовый ответ
-      if (!id) {
-        return res.status(200).json({ 
-          error: true, 
-          message: 'Нет id',
-          test_mode: true 
-        });
-      }
+      if (!id) return res.status(200).json({ error: true, message: 'Нет id' });
 
-      // Если это тестовый запрос (id начинается с test_) – возвращаем тестовый ответ
-      if (id.startsWith('test_')) {
-        if (type === 'status') {
-          return res.status(200).json({
-            status: 'COMPLETED',
-            queue_position: 0,
-            test_mode: true
-          });
-        }
-        if (type === 'response') {
-          return res.status(200).json({
-            image_url: 'https://via.placeholder.com/512x512/d4a853/1a0f0a?text=Видение+явилось',
-            test_mode: true
-          });
-        }
-      }
-
-      // Проверяем ключ
       const apiKey = process.env.BANANA_API_KEY;
-      if (!apiKey) {
-        console.log('⚠️ BANANA_API_KEY не найден (GET)');
-        return res.status(200).json({
-          status: 'COMPLETED',
-          queue_position: 0,
-          test_mode: true
+
+      // --- Если запрашиваем статус ---
+      if (type === 'status') {
+        const url = `https://api.odirouter.ai/model/v1/queue/free-nano-banana-2/requests/${id}/status`;
+        const response = await fetch(url, {
+          headers: { 'Authorization': `Bearer ${apiKey}` }
         });
+        const data = await response.json();
+        return res.status(200).json(data);
       }
 
-      // Формируем URL для odirouter
-      const url = type === 'response'
-        ? `https://api.odirouter.ai/model/v1/queue/free-nano-banana-2/requests/${id}/response`
-        : `https://api.odirouter.ai/model/v1/queue/free-nano-banana-2/requests/${id}/status`;
+      // --- Если запрашиваем ответ (изображение) ---
+      if (type === 'response') {
+        // Сначала получаем response_url из статуса
+        const statusUrl = `https://api.odirouter.ai/model/v1/queue/free-nano-banana-2/requests/${id}/status`;
+        const statusRes = await fetch(statusUrl, {
+          headers: { 'Authorization': `Bearer ${apiKey}` }
+        });
+        const statusData = await statusRes.json();
+        console.log('Статус для получения изображения:', statusData);
 
-      // Отправляем запрос к odirouter
-      const response = await fetch(url, {
-        headers: {
-          'Authorization': `Bearer ${apiKey}`
-        }
-      });
+        // Если есть response_url – скачиваем изображение
+        if (statusData.response_url) {
+          // Скачиваем изображение как бинарные данные
+          const imageRes = await fetch(statusData.response_url, {
+            headers: { 'Authorization': `Bearer ${apiKey}` }
+          });
 
-      const data = await response.json();
-      console.log('✅ Ответ от odirouter (GET):', data);
-      
-      // Если odirouter вернул ошибку – возвращаем тестовый ответ
-      if (data.error) {
-        console.log('⚠️ Ошибка odirouter (GET):', data.error);
-        if (type === 'response') {
+          // Проверяем, что пришло
+          const contentType = imageRes.headers.get('content-type') || 'image/png';
+          const imageBuffer = await imageRes.arrayBuffer();
+          const base64 = Buffer.from(imageBuffer).toString('base64');
+
+          // Возвращаем JSON с base64
           return res.status(200).json({
-            image_url: 'https://via.placeholder.com/512x512/d4a853/1a0f0a?text=Видение+явилось',
-            test_mode: true
+            image_url: `data:${contentType};base64,${base64}`,
+            mime_type: contentType,
+            success: true
           });
         }
-        return res.status(200).json({
-          status: 'COMPLETED',
-          queue_position: 0,
-          test_mode: true
-        });
+
+        // Если нет response_url, пробуем взять из output
+        if (statusData.output && statusData.output.length > 0) {
+          // В output может быть массив с base64 или ссылками
+          const firstOutput = statusData.output[0];
+          if (firstOutput.content && firstOutput.content.length > 0) {
+            // content может содержать base64 или объект с image_url
+            const content = firstOutput.content[0];
+            if (content.image_url) {
+              return res.status(200).json({
+                image_url: content.image_url,
+                success: true
+              });
+            }
+            if (typeof content === 'string' && content.startsWith('data:image')) {
+              return res.status(200).json({
+                image_url: content,
+                success: true
+              });
+            }
+          }
+        }
+
+        return res.status(200).json({ error: true, message: 'Не удалось получить изображение' });
       }
 
-      return res.status(200).json(data);
-      
+      return res.status(200).json({ error: true, message: 'Неверный type' });
+
     } catch (err) {
-      // При любой ошибке – возвращаем тестовый ответ
-      console.error('❌ Ошибка в GET:', err.message);
-      const { type } = req.query;
-      if (type === 'response') {
-        return res.status(200).json({
-          image_url: 'https://via.placeholder.com/512x512/d4a853/1a0f0a?text=Видение+явилось',
-          test_mode: true
-        });
-      }
-      return res.status(200).json({
-        status: 'COMPLETED',
-        queue_position: 0,
-        test_mode: true
-      });
+      console.error('Ошибка в GET:', err);
+      return res.status(200).json({ error: true, message: err.message });
     }
   }
 
-  // Если метод не POST и не GET
   return res.status(405).json({ error: 'Method not allowed' });
 };
