@@ -858,9 +858,13 @@ body {
       <button onclick="startVision()" style="flex:1; min-width:120px; background:linear-gradient(135deg, #b8860b 0%, #f4d03f 50%, #b8860b 100%); border:1px solid rgba(255,215,0,0.6); color:#1a0f0a; font-family:'Cinzel',serif; font-size:11px; font-weight:bold; padding:6px 12px; border-radius:20px; cursor:pointer; letter-spacing:1px;">◈ СОТВОРИТЬ ОБРАЗ ◈</button>
     </div>
     <div id="vision-status" style="color:#b19053; font-size:12px; font-style:italic; font-family:'Cinzel',serif; letter-spacing:1px; margin-bottom:4px; display:none;"></div>
-    <div id="vision-timer" style="color:#806040; font-size:11px; font-family:'Cinzel',serif; margin-bottom:8px; display:none;">⏳ Прошло: <span id="vision-seconds">0</span> сек</div>
+    <div id="vision-timer" style="color:#504020; font-size:9px; font-family:'Cinzel',serif; margin-top:6px; display:none;">⏱ Прошло: <span id="vision-seconds">0</span> сек</div>
 
-    <img id="vision-img" style="max-width:100%; width:100%; border-radius:8px; border:1px solid rgba(180,140,80,0.4); display:none; box-shadow:0 0 20px rgba(212,168,83,0.3); cursor:pointer;" onclick="expandVision()" alt="Видение Буквицы" />
+<div id="vision-result-area" style="display:none; margin-top:12px; text-align:center; animation: fadeIn 0.6s ease;">
+      <div style="font-family:'Cinzel',serif; font-size:15px; color:#d4a853; margin-bottom:10px; text-shadow:0 0 10px rgba(212,168,83,0.4); letter-spacing:2px;">✨ Видение явилось ✨</div>
+      <img id="vision-img" style="max-width:100%; width:100%; border-radius:8px; border:1px solid rgba(180,140,80,0.4); box-shadow:0 0 20px rgba(212,168,83,0.3); cursor:pointer;" onclick="expandVision()" alt="Видение Буквицы" />
+    </div>
+
     <div id="vision-actions" style="display:none; gap:8px; margin-top:10px; justify-content:center; flex-wrap:wrap;">
       <button onclick="expandVision()" style="background:rgba(135,206,250,0.15); border:1px solid rgba(135,206,250,0.5); color:#87cefa; padding:6px 14px; border-radius:20px; font-family:'Cinzel',serif; font-size:10px; cursor:pointer;">🔍 Расширить</button>
       <button onclick="saveVision()" style="background:rgba(118,255,3,0.12); border:1px solid rgba(118,255,3,0.4); color:#76ff03; padding:6px 14px; border-radius:20px; font-family:'Cinzel',serif; font-size:10px; cursor:pointer;">💾 Сохранить</button>
@@ -1847,6 +1851,8 @@ function toggleVision(event) {
     if (visionCheckInterval) {
       clearInterval(visionCheckInterval);
       visionCheckInterval = null;
+    const resultArea = document.getElementById('vision-result-area');
+    if (resultArea) resultArea.style.display = 'none';
     }
     container.style.display = 'block';
 
@@ -1862,22 +1868,11 @@ function toggleVision(event) {
 }
 
 function closeVision() {
-  const container = document.getElementById('vision-container');
-  if (container) container.style.display = 'none';
-  stopVisionTimer();
-  if (visionCheckInterval) {
+  
     clearInterval(visionCheckInterval);
     visionCheckInterval = null;
   }
-  const btn = document.getElementById('visionBtn');
-  if (btn) {
-    btn.textContent = '◈ ОБРАЗ ИИ ◈';
-    btn.style.borderColor = 'rgba(212,168,83,0.5)';
-    btn.style.color = '#e8c880';
-  }
-}
 
-function startVisionTimer() {
   visionElapsed = 0;
   const timerEl = document.getElementById('vision-timer');
   const secEl = document.getElementById('vision-seconds');
@@ -1938,25 +1933,55 @@ async function startVision() {
     if (visionCheckInterval) clearInterval(visionCheckInterval);
 
     let attempts = 0;
+    let startQueuePos = null;
+    let startCheckTime = null;
     visionCheckInterval = setInterval(async () => {
       attempts++;
-      if (attempts > 120) { // 120 * 5 сек = 10 минут
+      if (attempts > 120) { // 10 минут (120 * 5 сек)
         clearInterval(visionCheckInterval);
         visionCheckInterval = null;
         stopVisionTimer();
-        if (statusEl) statusEl.textContent = 'Видение неявилось за долгое время...';
+        if (statusEl) {
+          statusEl.style.display = 'block';
+          statusEl.textContent = 'Видение не явилось за долгое время... Попробуй позже.';
+        }
         return;
       }
 
       try {
-        const statusRes = await fetch(`/api/image?id=${requestId}&type=status`);
+        const statusRes = await fetch(`/api/image?id=${requestId}&type=status`, { cache: 'no-store' });
         const statusData = await statusRes.json();
 
-        if (statusData.queue_position && statusEl) {
-          statusEl.textContent = `Позиция в очереди: ${statusData.queue_position} | Ждём: ${visionElapsed} сек`;
+        // --- ОБРАТНЫЙ ОТСЧЁТ ---
+        if (statusData.queue_position !== undefined && statusEl) {
+          const qPos = parseInt(statusData.queue_position, 10);
+          if (startQueuePos === null) {
+            startQueuePos = qPos;
+            startCheckTime = Date.now();
+          }
+
+          if (qPos <= 0) {
+            statusEl.textContent = '⚡ Образ рождается в чертогах...';
+          } else {
+            const elapsedSec = (Date.now() - startCheckTime) / 1000;
+            const processed = startQueuePos - qPos;
+            let etaText = '';
+            if (processed > 0 && elapsedSec > 0) {
+              const speed = processed / elapsedSec; // позиций в секунду
+              const remaining = Math.max(1, Math.round(qPos / speed));
+              etaText = ` | ⏳ Осталось примерно ${remaining} сек`;
+            } else if (elapsedSec > 15) {
+              etaText = ' | ⏳ Очередь движется медленно...';
+            }
+            statusEl.textContent = `📍 Позиция в очереди: ${qPos}${etaText}`;
+          }
+        } else if (statusEl && !statusData.image_url && !statusData.url) {
+          statusEl.textContent = '⚡ Образ рождается в чертогах...';
         }
 
-        const isDone = statusData.status === 'completed' || statusData.status === 'done' || statusData.done === true || statusData.image_url || (statusData.images && statusData.images.length > 0);
+        const isDone = statusData.status === 'completed' || statusData.status === 'done' || statusData.done === true || statusData.image_url || statusData.url || (statusData.images && statusData.images.length > 0);
+
+
 
         if (isDone) {
           clearInterval(visionCheckInterval);
@@ -1969,11 +1994,16 @@ async function startVision() {
           const imageUrl = resultData.image_url || resultData.url || resultData.output || resultData.images?.[0]?.url || resultData.data?.[0]?.url;
 
           if (imageUrl) {
+            
+            const resultArea = document.getElementById('vision-result-area');
             if (statusEl) statusEl.style.display = 'none';
+
+            if (resultArea) resultArea.style.display = 'block';
             img.src = imageUrl;
             img.style.display = 'block';
             actions.style.display = 'flex';
-            setTimeout(() => img.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+            setTimeout(() => resultArea.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
+          }
           } else {
             if (statusEl) {
               statusEl.style.display = 'block';
