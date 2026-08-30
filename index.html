@@ -1943,6 +1943,12 @@ async function startVision() {
 
   if (!card) return;
 
+  const customPromptEl = document.getElementById('vision-custom-prompt');
+  const customPrompt = customPromptEl ? customPromptEl.value.trim() : '';
+  const prompt = customPrompt || buildVisionPrompt(card);
+  const aspect = document.getElementById('vision-aspect')?.value || '1:1';
+  const resolution = document.getElementById('vision-resolution')?.value || '1K';
+
   img.style.display = 'none';
   img.src = '';
   actions.style.display = 'none';
