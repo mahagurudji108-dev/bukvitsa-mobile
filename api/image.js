@@ -36,7 +36,6 @@ module.exports = async (req, res) => {
 
       const apiKey = process.env.BANANA_API_KEY;
 
-      // --- Если запрашиваем статус ---
       if (type === 'status') {
         const url = `https://api.odirouter.ai/model/v1/queue/free-nano-banana-2/requests/${id}/status`;
         const response = await fetch(url, {
@@ -46,29 +45,37 @@ module.exports = async (req, res) => {
         return res.status(200).json(data);
       }
 
-      // --- Если запрашиваем ответ (изображение) ---
       if (type === 'response') {
-        // Сначала получаем response_url из статуса
-        const statusUrl = `https://api.odirouter.ai/model/v1/queue/free-nano-banana-2/requests/${id}/status`;
-        const statusRes = await fetch(statusUrl, {
+        // Получаем JSON с информацией о задаче
+        const statusUrl = `https://api.odirouter.ai/model/v1/queue/free-nano-banana-2/requests/${id}/response`;
+        const response = await fetch(statusUrl, {
           headers: { 'Authorization': `Bearer ${apiKey}` }
         });
-        const statusData = await statusRes.json();
-        console.log('Статус для получения изображения:', statusData);
+        const data = await response.json();
+        console.log('Ответ от odirouter (response):', data);
 
-        // Если есть response_url – скачиваем изображение
-        if (statusData.response_url) {
-          // Скачиваем изображение как бинарные данные
-          const imageRes = await fetch(statusData.response_url, {
-            headers: { 'Authorization': `Bearer ${apiKey}` }
-          });
+        // Ищем URL картинки внутри output
+        let imageUrl = null;
 
-          // Проверяем, что пришло
-          const contentType = imageRes.headers.get('content-type') || 'image/png';
+        // Проверяем структуру: output[0].content[0].url
+        if (data.output && Array.isArray(data.output) && data.output.length > 0) {
+          const firstOutput = data.output[0];
+          if (firstOutput.content && Array.isArray(firstOutput.content) && firstOutput.content.length > 0) {
+            const firstContent = firstOutput.content[0];
+            if (firstContent.url) {
+              imageUrl = firstContent.url;
+            }
+          }
+        }
+
+        // Если нашли URL – скачиваем картинку и возвращаем как base64
+        if (imageUrl) {
+          console.log('Скачиваем изображение по URL:', imageUrl);
+          const imageRes = await fetch(imageUrl);
           const imageBuffer = await imageRes.arrayBuffer();
           const base64 = Buffer.from(imageBuffer).toString('base64');
+          const contentType = imageRes.headers.get('content-type') || 'image/jpeg';
 
-          // Возвращаем JSON с base64
           return res.status(200).json({
             image_url: `data:${contentType};base64,${base64}`,
             mime_type: contentType,
@@ -76,29 +83,11 @@ module.exports = async (req, res) => {
           });
         }
 
-        // Если нет response_url, пробуем взять из output
-        if (statusData.output && statusData.output.length > 0) {
-          // В output может быть массив с base64 или ссылками
-          const firstOutput = statusData.output[0];
-          if (firstOutput.content && firstOutput.content.length > 0) {
-            // content может содержать base64 или объект с image_url
-            const content = firstOutput.content[0];
-            if (content.image_url) {
-              return res.status(200).json({
-                image_url: content.image_url,
-                success: true
-              });
-            }
-            if (typeof content === 'string' && content.startsWith('data:image')) {
-              return res.status(200).json({
-                image_url: content,
-                success: true
-              });
-            }
-          }
-        }
-
-        return res.status(200).json({ error: true, message: 'Не удалось получить изображение' });
+        // Если URL не найден – возвращаем ошибку
+        return res.status(200).json({
+          error: true,
+          message: 'Не удалось найти URL изображения в ответе odirouter'
+        });
       }
 
       return res.status(200).json({ error: true, message: 'Неверный type' });
