@@ -81,7 +81,8 @@
   font-weight: 400;
 }
 </style>
-  <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
+  <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js">
+</script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
@@ -862,6 +863,21 @@ body {
   </div>
 
   <div id="vision-status" style="color:#b19053; font-size:13px; font-style:italic; font-family:'Cinzel',serif; letter-spacing:1px; margin-bottom:8px; min-height:24px; display:none;"></div>
+
+  <!-- Прогресс-бар -->
+  <div id="vision-progress" style="display:none; text-align:center; margin:10px 0;">
+    <div style="position:relative; display:inline-block;">
+      <svg width="60" height="60" viewBox="0 0 60 60">
+        <circle cx="30" cy="30" r="25" fill="none" stroke="rgba(180,140,80,0.2)" stroke-width="4"/>
+        <circle id="progress-circle" cx="30" cy="30" r="25" fill="none" stroke="#d4a853" stroke-width="4" 
+                stroke-dasharray="157.08" stroke-dashoffset="157.08" 
+                transform="rotate(-90 30 30)" style="transition: stroke-dashoffset 0.5s ease;"/>
+      </svg>
+      <div id="progress-text" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); 
+           font-family:'Cinzel',serif; font-size:14px; color:#d4a853;">0%</div>
+    </div>
+  </div>
+
   <div id="vision-timer" style="color:#504020; font-size:11px; font-family:'Cinzel',serif; margin-bottom:10px; display:none;">⏱ Прошло: <span id="vision-seconds">0</span> сек</div>
 
   <div id="vision-result-area" style="display:none; margin-top:12px; text-align:center; animation:fadeIn 0.6s ease;">
@@ -1233,6 +1249,7 @@ let isSpreadMode = false;
 let btnTimer = null;
 let entropyPool = 0; // Бассейн энтропии: собирает хаос от твоих движений по экрану
 let currentYesNo = null;
+let isGenerating = false; // Флаг, идёт ли генерация
 
 // === КОСМИЧЕСКИЙ ЖРЕБИЙ (работает на всех устройствах) ===
 function cosmicRandom() {
@@ -1912,6 +1929,19 @@ function startVisionTimer() {
   }, 1000);
 }
 
+// Функция обновления прогресс-бара
+function updateProgress(percent) {
+  const circle = document.getElementById('progress-circle');
+  const text = document.getElementById('progress-text');
+  if (!circle || !text) return;
+  
+  const circumference = 157.08; // 2 * PI * 25
+  const offset = circumference - (percent / 100) * circumference;
+  circle.style.strokeDashoffset = offset;
+  text.textContent = Math.round(percent) + '%';
+}
+
+
 function closeVision() {
   clearInterval(visionCheckInterval);
   visionCheckInterval = null;
@@ -1935,6 +1965,7 @@ function stopVisionTimer() {
   if (timerEl) timerEl.style.display = 'none';
 }
 
+
 async function startVision() {
   const statusEl = document.getElementById('vision-status');
   const img = document.getElementById('vision-img');
@@ -1942,6 +1973,22 @@ async function startVision() {
   const card = window.lastOracleCard;
 
   if (!card) return;
+
+  // Проверяем, не идёт ли уже генерация
+  if (isGenerating) {
+    alert('Генерация уже идёт. Подождите...');
+    return;
+  }
+  isGenerating = true;
+
+  // Находим кнопку генерации и блокируем её
+  const generateBtn = document.querySelector('.generate-btn');
+  if (generateBtn) {
+    generateBtn.disabled = true;
+    generateBtn.textContent = '⏳ Генерация...';
+    generateBtn.style.opacity = '0.6';
+    generateBtn.style.cursor = 'not-allowed';
+  }
 
   const customPromptEl = document.getElementById('vision-custom-prompt');
   const customPrompt = customPromptEl ? customPromptEl.value.trim() : '';
@@ -1968,6 +2015,13 @@ async function startVision() {
 
     if (data.error || !data.request_id) {
       if (statusEl) statusEl.textContent = 'Видение не явилось: ' + (data.message || 'ошибка очереди');
+      isGenerating = false;
+      if (generateBtn) {
+        generateBtn.disabled = false;
+        generateBtn.textContent = '◈ СОТВОРИТЬ ОБРАЗ ◈';
+        generateBtn.style.opacity = '1';
+        generateBtn.style.cursor = 'pointer';
+      }
       return;
     }
 
@@ -1990,6 +2044,13 @@ async function startVision() {
           statusEl.style.display = 'block';
           statusEl.textContent = 'Видение не явилось за долгое время... Попробуй позже.';
         }
+        isGenerating = false;
+        if (generateBtn) {
+          generateBtn.disabled = false;
+          generateBtn.textContent = '◈ СОТВОРИТЬ ОБРАЗ ◈';
+          generateBtn.style.opacity = '1';
+          generateBtn.style.cursor = 'pointer';
+        }
         return;
       }
 
@@ -1997,6 +2058,22 @@ async function startVision() {
         const statusRes = await fetch(`/api/image?id=${requestId}&type=status`, { cache: 'no-store' });
         const statusData = await statusRes.json();
         console.log('Status response:', statusData);
+
+        // Показываем прогресс
+        const progressContainer = document.getElementById('vision-progress');
+        if (progressContainer) progressContainer.style.display = 'block';
+        
+        // Обновляем прогресс на основе позиции в очереди
+        if (statusData.queue_position !== undefined) {
+          const qPos = parseInt(statusData.queue_position, 10);
+          const maxQueue = 20;
+          const percent = Math.max(0, Math.min(100, 100 - (qPos / maxQueue) * 100));
+          updateProgress(percent);
+        } else if (statusData.status === 'IN_PROGRESS') {
+          updateProgress(50);
+        } else if (statusData.status === 'COMPLETED' || statusData.status === 'completed') {
+          updateProgress(100);
+        }
 
         // --- ОБРАТНЫЙ ОТСЧЁТ ---
         if (statusData.queue_position !== undefined && statusEl) {
@@ -2025,7 +2102,7 @@ async function startVision() {
           statusEl.textContent = '⚡ Образ рождается в чертогах...';
         }
 
-        // --- ПРОВЕРКА ЗАВЕРШЕНИЯ (ИСПРАВЛЕНО) ---
+        // --- ПРОВЕРКА ЗАВЕРШЕНИЯ ---
         const isDone = statusData.status === 'COMPLETED' || statusData.status === 'completed' || statusData.status === 'done';
 
         if (isDone) {
@@ -2037,13 +2114,29 @@ async function startVision() {
           const resultData = await resultRes.json();
           console.log('Result response:', resultData);
 
-          // Поиск ссылки на изображение
-          const imageUrl = resultData.image_url || resultData.url || resultData.output || resultData.images?.[0]?.url || resultData.data?.[0]?.url;
+          let imageUrl = null;
+          if (resultData.image_url) imageUrl = resultData.image_url;
+          else if (resultData.url) imageUrl = resultData.url;
+          else if (resultData.output) {
+            if (Array.isArray(resultData.output) && resultData.output.length > 0) {
+              const firstOutput = resultData.output[0];
+              if (firstOutput.content && Array.isArray(firstOutput.content) && firstOutput.content.length > 0) {
+                const firstContent = firstOutput.content[0];
+                if (typeof firstContent === 'string') imageUrl = firstContent;
+                else if (firstContent.image_url) imageUrl = firstContent.image_url;
+                else if (firstContent.url) imageUrl = firstContent.url;
+              }
+            }
+          }
+          if (!imageUrl && resultData.images && resultData.images.length > 0) {
+            const firstImage = resultData.images[0];
+            if (typeof firstImage === 'string') imageUrl = firstImage;
+            else if (firstImage.url) imageUrl = firstImage.url;
+          }
 
           if (imageUrl) {
             const resultArea = document.getElementById('vision-result-area');
             if (statusEl) statusEl.style.display = 'none';
-
             if (resultArea) resultArea.style.display = 'block';
             img.src = imageUrl;
             img.style.display = 'block';
@@ -2055,6 +2148,13 @@ async function startVision() {
               statusEl.textContent = 'Видение пришло, но неразличимо...';
             }
           }
+          isGenerating = false;
+          if (generateBtn) {
+            generateBtn.disabled = false;
+            generateBtn.textContent = '◈ СОТВОРИТЬ ОБРАЗ ◈';
+            generateBtn.style.opacity = '1';
+            generateBtn.style.cursor = 'pointer';
+          }
         } else if (statusData.status === 'FAILED' || statusData.error) {
           clearInterval(visionCheckInterval);
           visionCheckInterval = null;
@@ -2062,6 +2162,13 @@ async function startVision() {
           if (statusEl) {
             statusEl.style.display = 'block';
             statusEl.textContent = 'Видение рассеялось...';
+          }
+          isGenerating = false;
+          if (generateBtn) {
+            generateBtn.disabled = false;
+            generateBtn.textContent = '◈ СОТВОРИТЬ ОБРАЗ ◈';
+            generateBtn.style.opacity = '1';
+            generateBtn.style.cursor = 'pointer';
           }
         }
       } catch (e) {
@@ -2074,9 +2181,15 @@ async function startVision() {
       statusEl.style.display = 'block';
       statusEl.textContent = 'Связь с чертогами изображений прервалась';
     }
+    isGenerating = false;
+    if (generateBtn) {
+      generateBtn.disabled = false;
+      generateBtn.textContent = '◈ СОТВОРИТЬ ОБРАЗ ◈';
+      generateBtn.style.opacity = '1';
+      generateBtn.style.cursor = 'pointer';
+    }
   }
 }
-
 
 
 function expandVision() {
@@ -2297,6 +2410,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Запускаем инициализацию
 initVKBridge();
+// Предупреждение при уходе со страницы, если есть изображение
+window.addEventListener('beforeunload', function(e) {
+  const img = document.getElementById('vision-img');
+  if (img && img.src && img.style.display !== 'none') {
+    e.preventDefault();
+    e.returnValue = 'У вас есть сгенерированное изображение. Вы уверены, что хотите уйти?';
+    return e.returnValue;
+  }
+});
 </script>
 </body>
 </html>
