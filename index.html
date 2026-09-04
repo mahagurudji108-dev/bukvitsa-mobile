@@ -1911,24 +1911,33 @@ function toggleVision(event) {
       const customArea = document.getElementById('vision-custom-prompt');
       if (customArea) customArea.value = autoPrompt;
     }
-    // сброс старого изображения и таймера при повторном открытии
-    const img = document.getElementById('vision-img');
-    const actions = document.getElementById('vision-actions');
-    const statusEl = document.getElementById('vision-status');
-    if (img) { img.style.display = 'none'; img.src = ''; }
-    if (actions) actions.style.display = 'none';
-    if (statusEl) { statusEl.style.display = 'none'; statusEl.textContent = ''; }
-    stopVisionTimer();
-    if (visionCheckInterval) {
-      clearInterval(visionCheckInterval);
-      visionCheckInterval = null;
+
+   // Сбрасываем результат предыдущей генерации
     const resultArea = document.getElementById('vision-result-area');
     if (resultArea) resultArea.style.display = 'none';
+    const img = document.getElementById('vision-img');
+    if (img) {
+      img.style.display = 'none';
+      img.src = '';
     }
+    const actions = document.getElementById('vision-actions');
+    if (actions) actions.style.display = 'none';
+    const progressContainer = document.getElementById('vision-progress');
+    if (progressContainer) progressContainer.style.display = 'none';
+    const statusEl = document.getElementById('vision-status');
+    if (statusEl) {
+      statusEl.style.display = 'none';
+      statusEl.textContent = '';
+    }
+    updateProgress(0);
+
+    stopVisionTimer();
+if (visionCheckInterval) {
+      clearInterval(visionCheckInterval);
+      visionCheckInterval = null;
+    }
+    
     container.style.display = 'block';
-
-
-
     container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     if (btn) {
       btn.textContent = '✕ Закрыть Образ';
@@ -1937,6 +1946,7 @@ function toggleVision(event) {
     }
   }
 }
+
 
 function startVisionTimer() {
   visionElapsed = 0;
@@ -1964,10 +1974,11 @@ function updateProgress(percent) {
 
 
 function closeVision() {
-  cancelVision(); // ← ДОБАВЛЕНО
+  cancelVision(); // Отменяем генерацию
   clearInterval(visionCheckInterval);
   visionCheckInterval = null;
   stopVisionTimer();
+  
   const container = document.getElementById('vision-container');
   const btn = document.getElementById('visionBtn');
   if (container) container.style.display = 'none';
@@ -1976,8 +1987,25 @@ function closeVision() {
     btn.style.borderColor = 'rgba(212,168,83,0.5)';
     btn.style.color = '#e8c880';
   }
+  
+  // Скрываем результат
   const resultArea = document.getElementById('vision-result-area');
   if (resultArea) resultArea.style.display = 'none';
+  const actions = document.getElementById('vision-actions');
+  if (actions) actions.style.display = 'none';
+  const progressContainer = document.getElementById('vision-progress');
+  if (progressContainer) progressContainer.style.display = 'none';
+  const statusEl = document.getElementById('vision-status');
+  if (statusEl) {
+    statusEl.style.display = 'none';
+    statusEl.textContent = '';
+  }
+  const img = document.getElementById('vision-img');
+  if (img) {
+    img.style.display = 'none';
+    img.src = '';
+  }
+  updateProgress(0);
 }
 
 function stopVisionTimer() {
@@ -2126,9 +2154,11 @@ async function startVision() {
         const statusData = await statusRes.json();
         console.log('Status response:', statusData);
 
-        // Показываем прогресс
-        const progressContainer = document.getElementById('vision-progress');
-        if (progressContainer) progressContainer.style.display = 'block';
+
+    // Показываем прогресс с 0%
+    const progressContainer = document.getElementById('vision-progress');
+    if (progressContainer) progressContainer.style.display = 'block';
+    updateProgress(0);
         
         // Обновляем прогресс на основе позиции в очереди
         if (statusData.queue_position !== undefined) {
@@ -2205,6 +2235,11 @@ async function startVision() {
             const resultArea = document.getElementById('vision-result-area');
             if (statusEl) statusEl.style.display = 'none';
             if (resultArea) resultArea.style.display = 'block';
+
+            // Скрываем прогресс, показываем результат
+            const progressContainer = document.getElementById('vision-progress');
+            if (progressContainer) progressContainer.style.display = 'none';
+
             img.src = imageUrl;
             img.style.display = 'block';
             actions.style.display = 'flex';
