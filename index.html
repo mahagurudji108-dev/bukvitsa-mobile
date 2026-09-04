@@ -689,6 +689,29 @@ body {
   box-shadow: none !important;
 }
 
+/* Кнопка "Спросить ИИ" - бирюзовая */
+.yesno-btn#aiChatBtn {
+  background: rgba(100,240,220,0.15) !important; /* ФОН */
+  border-color: rgba(100,240,220,0.5) !important;  /* РАМКА */
+  color: #a0f0e0 !important; /* ЦВЕТ ТЕКСТА */
+  text-shadow: 0 0 8px rgba(100,240,220,0.3) !important; /* СВЕЧЕНИЕ */
+}
+.yesno-btn#aiChatBtn:hover {
+  background: rgba(100,240,220,0.25) !important; /* ФОН ПРИ НАВЕДЕНИИ */
+  border-color: rgba(100,240,220,0.7) !important; /* РАМКА ПРИ НАВЕДЕНИИ */
+}
+
+/* Кнопка "ОБРАЗ ИИ" - золотая */
+.yesno-btn#visionBtn {
+  background: rgba(191,113,44,0.15) !important;
+  border-color: rgba(191,113,44,0.5) !important;
+  color: #e8c880 !important;
+  text-shadow: 0 0 8px rgba(80,128,59,0.3) !important;
+}
+.yesno-btn#visionBtn:hover {
+  background: rgba(191,113,44,0.25) !important;
+  border-color: rgba(191,113,44,0.7) !important;
+}
   </style>
 </head>
 <body>
@@ -735,8 +758,8 @@ body {
           <button class="yesno-btn" onclick="showYesNo(event)">◈ ПОЛУЧИТЬ ОТВЕТ ◈</button>
         </div>
       </div>
-  <button class="yesno-btn" id="aiChatBtn" onclick="toggleAIChat(event)" style="display:none; border-color:rgba(191,113,44,0.5); color:#ffffff; text-shadow:0 0 8px rgba(80,128,59,0.3);">🤖 Спросить ИИ</button>
-  <button class="yesno-btn" id="visionBtn" onclick="toggleVision(event)" style="display:none; border-color:rgba(191,113,44,0.5); color:#ffffff; text-shadow:0 0 8px rgba(80,128,59,0.3);">◈ ОБРАЗ ИИ ◈</button>
+<button class="yesno-btn" id="aiChatBtn" onclick="toggleAIChat(event)" style="display:none;">🤖 Спросить ИИ</button>
+<button class="yesno-btn" id="visionBtn" onclick="toggleVision(event)" style="display:none;">◈ ОБРАЗ ИИ ◈</button>
     </div>
   </div>
 
