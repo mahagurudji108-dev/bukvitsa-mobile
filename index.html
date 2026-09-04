@@ -2032,18 +2032,38 @@ function cancelVision() {
   const progressContainer = document.getElementById('vision-progress');
   const generateBtn = document.querySelector('.generate-btn');
   const cancelBtn = document.getElementById('cancelVisionBtn');
+  const resultArea = document.getElementById('vision-result-area');
+  const actions = document.getElementById('vision-actions');
+  const img = document.getElementById('vision-img');
+  const timerEl = document.getElementById('vision-timer');
   
+// Скрываем всё
+  // Показываем сообщение об отмене на 2 секунды
   if (statusEl) {
     statusEl.style.display = 'block';
     statusEl.textContent = '❌ Генерация отменена';
     setTimeout(() => {
       statusEl.style.display = 'none';
+      statusEl.textContent = '';
     }, 2000);
   }
-  
+
+ // Скрываем всё остальное
   if (progressContainer) progressContainer.style.display = 'none';
   if (cancelBtn) cancelBtn.style.display = 'none';
+  if (resultArea) resultArea.style.display = 'none';
+  if (actions) actions.style.display = 'none';
+  if (timerEl) timerEl.style.display = 'none';
+  if (img) {
+    img.style.display = 'none';
+    img.src = '';
+  }
   
+  
+  // Сбрасываем прогресс
+  updateProgress(0);
+
+ // Разблокируем кнопку генерации
   if (generateBtn) {
     generateBtn.disabled = false;
     generateBtn.textContent = '◈ СОТВОРИТЬ ОБРАЗ ◈';
@@ -2098,6 +2118,12 @@ async function startVision() {
     statusEl.style.display = 'block';
     statusEl.textContent = 'Отправляем заказ в чертоги...';
   }
+  // Показываем прогресс-бар с 0% с самого начала
+  const progressContainer = document.getElementById('vision-progress');
+  if (progressContainer) {
+    progressContainer.style.display = 'block';
+  }
+  updateProgress(0);
 
   try {
     const res = await fetch('/api/image', {
@@ -2239,6 +2265,10 @@ async function startVision() {
             // Скрываем прогресс, показываем результат
             const progressContainer = document.getElementById('vision-progress');
             if (progressContainer) progressContainer.style.display = 'none';
+
+            // Скрываем кнопку отмены
+            const cancelBtn = document.getElementById('cancelVisionBtn');
+            if (cancelBtn) cancelBtn.style.display = 'none';
 
             img.src = imageUrl;
             img.style.display = 'block';
