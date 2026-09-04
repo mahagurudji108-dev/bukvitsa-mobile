@@ -1404,9 +1404,10 @@ function drawBukvitsa() {
     aiBtn.style.background = 'linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03))';
   }
 
-// Сбрасываем кнопку "Образ ИИ"
+// Сбрасываем кнопку "Образ ИИ" и скрываем кнопку "Образ ИИ"
   const visionBtn = document.getElementById('visionBtn');
   if (visionBtn) {
+ visionBtn.style.display = 'none';
     visionBtn.textContent = '◈ ОБРАЗ ИИ ◈';
     visionBtn.style.borderColor = 'rgba(191,113,44,0.5)';
     visionBtn.style.color = '#e8c880';
