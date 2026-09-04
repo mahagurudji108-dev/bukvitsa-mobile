@@ -860,6 +860,9 @@ body {
       <option value="512">512</option>
     </select>
     <button onclick="startVision()" style="flex:1; min-width:120px; background:linear-gradient(135deg, #b8860b 0%, #f4d03f 50%, #b8860b 100%); border:1px solid rgba(255,215,0,0.6); color:#1a0f0a; font-family:'Cinzel',serif; font-size:12px; font-weight:bold; padding:8px 16px; border-radius:20px; cursor:pointer; letter-spacing:1px;">◈ СОТВОРИТЬ ОБРАЗ ◈</button>
+    <button id="cancelVisionBtn" onclick="cancelVision()" style="display:none; background:rgba(205,92,92,0.2); border:1px solid rgba(205,92,92,0.5); color:#cd5c5c; padding:8px 16px; border-radius:20px; font-family:'Cinzel',serif; font-size:11px; cursor:pointer; letter-spacing:1px;">
+      ❌ Отменить
+    </button>
   </div>
 
   <div id="vision-status" style="color:#b19053; font-size:13px; font-style:italic; font-family:'Cinzel',serif; letter-spacing:1px; margin-bottom:8px; min-height:24px; display:none;"></div>
@@ -1381,6 +1384,15 @@ function drawBukvitsa() {
   if (btn.disabled) return;
   currentYesNo = null;
 
+  // Отменяем предыдущую генерацию
+  if (isGenerating) {
+    if (confirm('Идёт генерация изображения. Отменить и продолжить?')) {
+      cancelVision();
+    } else {
+      return;
+    }
+  }
+
    // Сбрасываем кнопки и окна при новой карте
   const aiBtn = document.getElementById('aiChatBtn');
   if (aiBtn) {
@@ -1474,6 +1486,15 @@ function toggleSpreadMode() {
     btnTimer = null;
   }
   document.getElementById('drawBtn').disabled = false;
+
+  // Отменяем генерацию при смене режима
+  if (isGenerating) {
+    if (confirm('Идёт генерация изображения. Отменить и переключиться?')) {
+      cancelVision();
+    } else {
+      return;
+    }
+  }
 
   // --- Закрываем ИИ-окна при смене режима ---
   const chatCont = document.getElementById('ai-chat-container');
@@ -1943,6 +1964,7 @@ function updateProgress(percent) {
 
 
 function closeVision() {
+  cancelVision(); // ← ДОБАВЛЕНО
   clearInterval(visionCheckInterval);
   visionCheckInterval = null;
   stopVisionTimer();
@@ -1965,6 +1987,44 @@ function stopVisionTimer() {
   if (timerEl) timerEl.style.display = 'none';
 }
 
+// Отмена генерации
+function cancelVision() {
+  if (visionCheckInterval) {
+    clearInterval(visionCheckInterval);
+    visionCheckInterval = null;
+  }
+  if (visionTimerInterval) {
+    clearInterval(visionTimerInterval);
+    visionTimerInterval = null;
+  }
+  
+  isGenerating = false;
+  
+  const statusEl = document.getElementById('vision-status');
+  const progressContainer = document.getElementById('vision-progress');
+  const generateBtn = document.querySelector('.generate-btn');
+  const cancelBtn = document.getElementById('cancelVisionBtn');
+  
+  if (statusEl) {
+    statusEl.style.display = 'block';
+    statusEl.textContent = '❌ Генерация отменена';
+    setTimeout(() => {
+      statusEl.style.display = 'none';
+    }, 2000);
+  }
+  
+  if (progressContainer) progressContainer.style.display = 'none';
+  if (cancelBtn) cancelBtn.style.display = 'none';
+  
+  if (generateBtn) {
+    generateBtn.disabled = false;
+    generateBtn.textContent = '◈ СОТВОРИТЬ ОБРАЗ ◈';
+    generateBtn.style.opacity = '1';
+    generateBtn.style.cursor = 'pointer';
+  }
+  
+  console.log('✅ Генерация отменена');
+}
 
 async function startVision() {
   const statusEl = document.getElementById('vision-status');
