@@ -1404,6 +1404,27 @@ function drawBukvitsa() {
     aiBtn.style.background = 'linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03))';
   }
 
+// Сбрасываем кнопку "Образ ИИ"
+  const visionBtn = document.getElementById('visionBtn');
+  if (visionBtn) {
+    visionBtn.textContent = '◈ ОБРАЗ ИИ ◈';
+    visionBtn.style.borderColor = 'rgba(191,113,44,0.5)';
+    visionBtn.style.color = '#e8c880';
+    visionBtn.style.textShadow = '0 0 8px rgba(80,128,59,0.3)';
+  }
+
+  // Закрываем окно "Видение", если открыто
+  const visionContainer = document.getElementById('vision-container');
+  if (visionContainer && visionContainer.style.display === 'block') {
+    closeVision();
+  }
+
+  // Закрываем ИИ-чат, если открыт
+  const chatContainer = document.getElementById('ai-chat-container');
+  if (chatContainer && chatContainer.style.display === 'block') {
+    closeAIChat();
+  }
+
   if (isSpreadMode) {
     toggleSpreadMode();
     setTimeout(() => drawBukvitsa(), 300);
