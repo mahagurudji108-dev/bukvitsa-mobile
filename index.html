@@ -2120,7 +2120,242 @@ function cancelVision() {
 
 
 
+async function startVision() {
+  const statusEl = document.getElementById('vision-status');
+  const img = document.getElementById('vision-img');
+  const actions = document.getElementById('vision-actions');
+  const card = window.lastOracleCard;
 
+  if (!card) return;
+
+  if (isGenerating) {
+    alert('Генерация уже идёт. Подождите...');
+    return;
+  }
+  isGenerating = true;
+
+  const generateBtn = document.querySelector('.generate-btn');
+  if (generateBtn) {
+    generateBtn.disabled = true;
+    generateBtn.textContent = '⏳ Генерация...';
+    generateBtn.style.opacity = '0.6';
+    generateBtn.style.cursor = 'not-allowed';
+  }
+
+  const cancelBtn = document.getElementById('cancelVisionBtn');
+  if (cancelBtn) {
+    cancelBtn.style.display = 'inline-block';
+  }
+
+  const customPromptEl = document.getElementById('vision-custom-prompt');
+  const customPrompt = customPromptEl ? customPromptEl.value.trim() : '';
+  const prompt = customPrompt || buildVisionPrompt(card);
+  const aspect = document.getElementById('vision-aspect')?.value || '1:1';
+  const resolution = document.getElementById('vision-resolution')?.value || '1K';
+
+  img.style.display = 'none';
+  img.src = '';
+  actions.style.display = 'none';
+  if (statusEl) {
+    statusEl.style.display = 'block';
+    statusEl.textContent = 'Отправляем заказ в чертоги...';
+  }
+  const progressContainer = document.getElementById('vision-progress');
+  if (progressContainer) {
+    progressContainer.style.display = 'block';
+  }
+  updateProgress(0);
+
+  try {
+    const res = await fetch('/api/image', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt, aspect_ratio: aspect, resolution })
+    });
+    const data = await res.json();
+    console.log('POST response:', data);
+
+    if (data.error || !data.request_id) {
+      if (statusEl) statusEl.textContent = 'Видение не явилось: ' + (data.message || 'ошибка очереди');
+      isGenerating = false;
+      if (generateBtn) {
+        generateBtn.disabled = false;
+        generateBtn.textContent = '◈ СОТВОРИТЬ ОБРАЗ ◈';
+        generateBtn.style.opacity = '1';
+        generateBtn.style.cursor = 'pointer';
+      }
+      return;
+    }
+
+    const requestId = data.request_id;
+    if (statusEl) statusEl.textContent = 'Видение стоит в очереди Предков...';
+    startVisionTimer();
+
+    if (visionCheckInterval) clearInterval(visionCheckInterval);
+
+    let attempts = 0;
+    let startQueuePos = null;
+    let startCheckTime = null;
+    visionCheckInterval = setInterval(async () => {
+      attempts++;
+      if (attempts > 120) {
+        clearInterval(visionCheckInterval);
+        visionCheckInterval = null;
+        stopVisionTimer();
+        if (statusEl) {
+          statusEl.style.display = 'block';
+          statusEl.textContent = 'Видение не явилось за долгое время... Попробуй позже.';
+        }
+        isGenerating = false;
+        if (generateBtn) {
+          generateBtn.disabled = false;
+          generateBtn.textContent = '◈ СОТВОРИТЬ ОБРАЗ ◈';
+          generateBtn.style.opacity = '1';
+          generateBtn.style.cursor = 'pointer';
+        }
+        return;
+      }
+
+      try {
+        const statusRes = await fetch(`/api/image?id=${requestId}&type=status`, { cache: 'no-store' });
+        const statusData = await statusRes.json();
+        console.log('Status response:', statusData);
+
+        const progressContainer = document.getElementById('vision-progress');
+        if (progressContainer) progressContainer.style.display = 'block';
+        updateProgress(0);
+        
+        if (statusData.queue_position !== undefined) {
+          const qPos = parseInt(statusData.queue_position, 10);
+          const maxQueue = 20;
+          const percent = Math.max(0, Math.min(100, 100 - (qPos / maxQueue) * 100));
+          updateProgress(percent);
+        } else if (statusData.status === 'IN_PROGRESS') {
+          updateProgress(50);
+        } else if (statusData.status === 'COMPLETED' || statusData.status === 'completed') {
+          updateProgress(100);
+        }
+
+        if (statusData.queue_position !== undefined && statusEl) {
+          const qPos = parseInt(statusData.queue_position, 10);
+          if (startQueuePos === null) {
+            startQueuePos = qPos;
+            startCheckTime = Date.now();
+          }
+
+          if (qPos <= 0) {
+            statusEl.textContent = '⚡ Образ рождается в чертогах...';
+          } else {
+            const elapsedSec = (Date.now() - startCheckTime) / 1000;
+            const processed = startQueuePos - qPos;
+            let etaText = '';
+            if (processed > 0 && elapsedSec > 0) {
+              const speed = processed / elapsedSec;
+              const remaining = Math.max(1, Math.round(qPos / speed));
+              etaText = ` | ⏳ Осталось примерно ${remaining} сек`;
+            } else if (elapsedSec > 15) {
+              etaText = ' | ⏳ Очередь движется медленно...';
+            }
+            statusEl.textContent = `📍 Позиция в очереди: ${qPos}${etaText}`;
+          }
+        } else if (statusEl && !statusData.image_url && !statusData.url) {
+          statusEl.textContent = '⚡ Образ рождается в чертогах...';
+        }
+
+        const isDone = statusData.status === 'COMPLETED' || statusData.status === 'completed' || statusData.status === 'done';
+
+        if (isDone) {
+          clearInterval(visionCheckInterval);
+          visionCheckInterval = null;
+          stopVisionTimer();
+
+          const resultRes = await fetch(`/api/image?id=${requestId}&type=response`);
+          const resultData = await resultRes.json();
+          console.log('Result response:', resultData);
+
+          let imageUrl = null;
+          if (resultData.image_url) imageUrl = resultData.image_url;
+          else if (resultData.url) imageUrl = resultData.url;
+          else if (resultData.output) {
+            if (Array.isArray(resultData.output) && resultData.output.length > 0) {
+              const firstOutput = resultData.output[0];
+              if (firstOutput.content && Array.isArray(firstOutput.content) && firstOutput.content.length > 0) {
+                const firstContent = firstOutput.content[0];
+                if (typeof firstContent === 'string') imageUrl = firstContent;
+                else if (firstContent.image_url) imageUrl = firstContent.image_url;
+                else if (firstContent.url) imageUrl = firstContent.url;
+              }
+            }
+          }
+          if (!imageUrl && resultData.images && resultData.images.length > 0) {
+            const firstImage = resultData.images[0];
+            if (typeof firstImage === 'string') imageUrl = firstImage;
+            else if (firstImage.url) imageUrl = firstImage.url;
+          }
+
+          if (imageUrl) {
+            const resultArea = document.getElementById('vision-result-area');
+            if (statusEl) statusEl.style.display = 'none';
+            if (resultArea) resultArea.style.display = 'block';
+
+            const progressContainer = document.getElementById('vision-progress');
+            if (progressContainer) progressContainer.style.display = 'none';
+
+            const cancelBtn = document.getElementById('cancelVisionBtn');
+            if (cancelBtn) cancelBtn.style.display = 'none';
+
+            img.src = imageUrl;
+            img.style.display = 'block';
+            actions.style.display = 'flex';
+            setTimeout(() => resultArea.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
+          } else {
+            if (statusEl) {
+              statusEl.style.display = 'block';
+              statusEl.textContent = 'Видение пришло, но неразличимо...';
+            }
+          }
+          isGenerating = false;
+          if (generateBtn) {
+            generateBtn.disabled = false;
+            generateBtn.textContent = '◈ СОТВОРИТЬ ОБРАЗ ◈';
+            generateBtn.style.opacity = '1';
+            generateBtn.style.cursor = 'pointer';
+          }
+        } else if (statusData.status === 'FAILED' || statusData.error) {
+          clearInterval(visionCheckInterval);
+          visionCheckInterval = null;
+          stopVisionTimer();
+          if (statusEl) {
+            statusEl.style.display = 'block';
+            statusEl.textContent = 'Видение рассеялось...';
+          }
+          isGenerating = false;
+          if (generateBtn) {
+            generateBtn.disabled = false;
+            generateBtn.textContent = '◈ СОТВОРИТЬ ОБРАЗ ◈';
+            generateBtn.style.opacity = '1';
+            generateBtn.style.cursor = 'pointer';
+          }
+        }
+      } catch (e) {
+        console.error('Ошибка в цикле статуса:', e);
+      }
+    }, 5000);
+
+  } catch (err) {
+    if (statusEl) {
+      statusEl.style.display = 'block';
+      statusEl.textContent = 'Связь с чертогами изображений прервалась';
+    }
+    isGenerating = false;
+    if (generateBtn) {
+      generateBtn.disabled = false;
+      generateBtn.textContent = '◈ СОТВОРИТЬ ОБРАЗ ◈';
+      generateBtn.style.opacity = '1';
+      generateBtn.style.cursor = 'pointer';
+    }
+  }
+}
 
 
 
