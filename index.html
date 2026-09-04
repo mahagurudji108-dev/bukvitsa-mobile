@@ -2050,6 +2050,13 @@ async function startVision() {
     generateBtn.style.cursor = 'not-allowed';
   }
 
+  // Показываем кнопку отмены
+  const cancelBtn = document.getElementById('cancelVisionBtn');
+  if (cancelBtn) {
+    cancelBtn.style.display = 'inline-block';
+  }
+
+
   const customPromptEl = document.getElementById('vision-custom-prompt');
   const customPrompt = customPromptEl ? customPromptEl.value.trim() : '';
   const prompt = customPrompt || buildVisionPrompt(card);
