@@ -286,7 +286,8 @@ body {
     .hint { font-size: 11px; color: #605040; margin-top: 10px; font-style: italic; position: relative; z-index: 1; }
 
     /* === СЕТКА === */
-    .grid-section { display: none; position: relative; z-index: 1; margin-top: 20px; }
+    .grid-section { display: none; position: relative; z-index: 1; margin-top: 20px; transition: margin-top 0.3s ease; }
+.grid-section.with-ai-buttons { margin-top: 70px; }
     .grid-section.active { display: block; }
     .grid-title { font-family: 'Cinzel', serif; font-size: 18px; color: #d4a853; margin-bottom: 10px; letter-spacing: 3px; }
     .grid-subtitle { font-size: 11px; color: #806040; margin-bottom: 8px; font-style: italic; }
@@ -756,8 +757,8 @@ body {
           <div class="card-udel" id="cardUdel">✦ УДЕЛ ПО ЗНАКУ ✦</div>
           <div class="card-prediction" id="cardPrediction">Послание предков...</div>
           <button class="yesno-btn" onclick="showYesNo(event)">◈ ПОЛУЧИТЬ ОТВЕТ ◈</button>
-        </div>
-      </div>
+  </div>
+  </div>
 <button class="yesno-btn" id="aiChatBtn" onclick="toggleAIChat(event)" style="display:none;">🤖 Спросить ИИ</button>
 <button class="yesno-btn" id="visionBtn" onclick="toggleVision(event)" style="display:none;">◈ ОБРАЗ ИИ ◈</button>
     </div>
@@ -1447,6 +1448,9 @@ function drawBukvitsa() {
     aiBtn.style.textShadow = '0 0 8px rgba(100,240,220,0.3)';
     aiBtn.style.background = 'linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03))';
   }
+  // Убираем класс у сетки
+  const gridSection = document.getElementById('gridSection');
+  if (gridSection) gridSection.classList.remove('with-ai-buttons');
 
 // Сбрасываем кнопку "Образ ИИ" и скрываем кнопку "Образ ИИ"
   const visionBtn = document.getElementById('visionBtn');
@@ -1541,6 +1545,9 @@ function flipCard() {
       if (aiBtn) aiBtn.style.display = 'none';
       const visionBtn = document.getElementById('visionBtn');
       if (visionBtn) visionBtn.style.display = 'none';
+      // Убираем класс у сетки
+      const gridSection = document.getElementById('gridSection');
+      if (gridSection) gridSection.classList.remove('with-ai-buttons');
     }, 400);
   }
 }
@@ -1879,6 +1886,10 @@ function showYesNo(event) {
   if (aiBtn) aiBtn.style.display = 'inline-block';
   const visionBtn = document.getElementById('visionBtn');
   if (visionBtn) visionBtn.style.display = 'inline-block';
+
+  // Добавляем класс для сетки, чтобы отодвинуть заголовок
+  const gridSection = document.getElementById('gridSection');
+  if (gridSection) gridSection.classList.add('with-ai-buttons');
 
   const el = document.createElement('div');
   el.className = 'yesno-float';
